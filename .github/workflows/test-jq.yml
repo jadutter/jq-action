@@ -11,9 +11,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: jadutter/jq-action@v1
         
       - name: List jq version
+        uses: jadutter/jq-action@v1
         id: version
         with:
           cmd: 'jq --version'
@@ -22,10 +22,12 @@ jobs:
         run: 'echo "jq version is ${{ steps.version.outputs.stdout }}"'
 
       - name: use jq
+        uses: jadutter/jq-action@v1
         with:
           cmd: 'jq -n "{foo:\"bar\"} | .bar" '
 
       - name: muliline command
+        uses: jadutter/jq-action@v1
         with:
           cmd: |
             echo '{"foo":"bar"}' | \

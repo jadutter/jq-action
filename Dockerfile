@@ -61,6 +61,8 @@ RUN apt-get purge -y \
     rm -rf /app/modules/oniguruma/.gitignore && \
     rm -rf /var/lib/apt/lists/* /var/lib/gems
 
-COPY entrypoint.sh /entrypoint.sh
+WORKDIR /app
+
+COPY entrypoint.sh /app/entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

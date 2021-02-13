@@ -1,0 +1,32 @@
+name: GitHub-CI
+
+on:
+  push:
+    branches: 
+      - main
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jadutter/jq-action@v1
+        
+      - name: List jq version
+        id: version
+        with:
+          cmd: 'jq --version'
+
+      - name: Show version
+        run: 'echo "jq version is ${{ steps.version.outputs.stdout }}"'
+
+      - name: use jq
+        with:
+          cmd: 'jq -n "{foo:\"bar\"} | .bar" '
+
+      - name: muliline command
+        with:
+          cmd: |
+            echo '{"foo":"bar"}' | \
+            jq ".foo"

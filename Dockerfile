@@ -1,7 +1,11 @@
 FROM alpine:latest
 
-RUN apk add jq
+RUN mkdir -p /app/
+
+WORKDIR /app
 
 COPY entrypoint.sh /app/entrypoint.sh
+
+RUN apk add jq
 
 ENTRYPOINT ["/app/entrypoint.sh"]

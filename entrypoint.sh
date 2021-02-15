@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # print the output and errors, but also send them to files to be read later
 ((eval $INPUT_CMD | tee /tmp/output) 3>&1 1>&2 2>&3 | tee /tmp/error)
 EXIT_CODE="$?"

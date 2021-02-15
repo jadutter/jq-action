@@ -12,8 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         
-      - name: List jq version
-        uses: jadutter/jq-action@v1.0.5
+      - name: Get jq version
+        uses: jadutter/jq-action@v1.0.6
         id: version
         with:
           cmd: 'jq --version'
@@ -22,13 +22,16 @@ jobs:
         run: 'echo "jq version is ${{ steps.version.outputs.stdout }}"'
 
       - name: use jq
-        uses: jadutter/jq-action@v1.0.5
+        uses: jadutter/jq-action@v1.0.6
+        id: test-1
         with:
           cmd: 'jq -n "{foo:\"bar\"} | .bar" '
 
       - name: muliline command
-        uses: jadutter/jq-action@v1.0.5
+        uses: jadutter/jq-action@v1.0.6
+        id: test-2
         with:
-          cmd: |
+          # use YAML folded style 
+          cmd: >
             echo '{"foo":"bar"}' | \
-            jq ".foo"
+            jq '.foo == "bar"'

@@ -6,6 +6,6 @@ WORKDIR /app
 
 COPY entrypoint.sh /app/entrypoint.sh
 
-RUN apk add jq
+RUN apk add jq bash
 
 ENTRYPOINT ["/app/entrypoint.sh"]

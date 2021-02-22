@@ -27,7 +27,7 @@ jobs:
             if [ ! -f '/entrypoint.sh' ]; then
               echo "forgot to add entrypoint.sh" >&2
               exit 1
-            fi
+            fi;
             if [ ! -x '/entrypoint.sh' ]; then
               echo "forgot to make entrypoint.sh executable" >&2
               exit 2

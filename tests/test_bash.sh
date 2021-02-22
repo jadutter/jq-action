@@ -14,6 +14,6 @@ def values:
 values
 EOF
 )"
-    jq "${get_values}" ./sample.json
+    jq "${get_values}" ./tests/sample.json
 }
 test_bash 

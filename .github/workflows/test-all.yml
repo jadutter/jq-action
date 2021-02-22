@@ -1,0 +1,58 @@
+name: "GitHub-CI: valid jq and entrypoint"
+
+on:
+    push: {}
+    pull_request: {}
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: get HEAD commit
+        id: git-head
+        run: >
+          echo "::set-output name=sha1::$(git rev-parse HEAD)"
+
+      - name: Show commit hash
+        run: 'echo "commit hash is ${{ steps.git-head.outputs.sha1 }}"'
+
+      - name: valid entrypoint
+        uses: jadutter/jq-action@develop
+        id: valid-entrypoint
+        with:
+          cmd: >
+            if [ ! -f '/entrypoint.sh' ]; then
+              echo "forgot to add entrypoint.sh" >&2
+              exit 1
+            fi
+            if [ ! -x '/entrypoint.sh' ]; then
+              echo "forgot to make entrypoint.sh executable" >&2
+              exit 2
+            fi
+
+      - name: Get jq version
+        uses: jadutter/jq-action@develop
+        id: version
+        with:
+          cmd: 'jq --version'
+
+      - name: Show version
+        run: 'echo "jq version is ${{ steps.version.outputs.stdout }}"'
+
+      - name: use jq
+        uses: jadutter/jq-action@develop
+        id: test-use-jq
+        with:
+          cmd: 'jq -n "{foo:\"bar\"} | .foo" '
+
+      - name: multi-line command
+        uses: jadutter/jq-action@develop
+        id: test-use-jq-multi-line
+        with:
+          # use YAML folded style 
+          cmd: >
+            echo '{"foo":"bar"}' | 
+            jq '.foo == "bar"'

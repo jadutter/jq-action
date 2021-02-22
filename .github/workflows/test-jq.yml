@@ -41,7 +41,7 @@ jobs:
         id: test-3
         with:
           cmd: >
-            jq 'keys' ./test/sample.json
+            jq 'keys' ./tests/sample.json
 
       - name: bash script from repo
         uses: jadutter/jq-action@main

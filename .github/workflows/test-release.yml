@@ -1,0 +1,26 @@
+name: "GitHub-CI: release tests"
+
+on:
+    push:
+        branches:
+            - release
+    pull_request: 
+        branches:
+            - release
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: clean directory
+        uses: jadutter/jq-action@release
+        id: clean-directory
+        with:
+          cmd: >
+            if [ -d '/tests/' ]; then
+              echo "forgot to remove tests directory" >&2
+              exit 1
+            fi
+            echo "directory is cleaned"

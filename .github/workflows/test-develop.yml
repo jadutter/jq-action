@@ -1,0 +1,63 @@
+name: "GitHub-CI: development tests"
+
+on:
+    push:
+        branches:
+            - develop
+    pull_request: 
+        branches: 
+            - develop
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: validate tests exist
+        uses: jadutter/jq-action@release
+        id: valid-tests
+        with:
+          cmd: >
+            if [ ! -d '/tests' ]; then
+              echo "tests directory does not exist " >&2
+              exit 1
+            fi;
+            if [ ! -f '/tests/sample.json' ]; then
+              echo "'/tests/sample.json' does not exist" >&2
+              exit 2
+            fi;
+            if [ ! -f '/tests/test_bash.sh' ]; then
+              echo "'/tests/test_bash.sh' does not exist" >&2
+              exit 3
+            fi;
+            if [ ! -f '/tests/test_jq.jq' ]; then
+              echo "'/tests/test_jq.jq' does not exist" >&2
+              exit 4
+            fi;
+            if [ ! -x '/tests/test_bash.sh' ]; then
+              echo "'/tests/test_bash.sh' is not executable" >&2
+              exit 5
+            fi;
+            echo "tests are ready"
+
+      - name: json file from repo
+        uses: jadutter/jq-action@release
+        id: test-4
+        with:
+          cmd: >
+            jq 'keys' ./tests/sample.json
+
+      - name: bash script from repo
+        uses: jadutter/jq-action@release
+        id: test-5
+        with:
+          cmd: >
+            ./tests/test_bash.sh
+
+      - name: jq-module from repo
+        uses: jadutter/jq-action@release
+        id: test-6
+        with:
+          cmd: >
+            jq -n 'include "./tests/test_jq"; sample_function'

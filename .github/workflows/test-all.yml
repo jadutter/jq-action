@@ -42,12 +42,39 @@ jobs:
 
       - name: Show version
         run: 'echo "jq version is ${{ steps.version.outputs.stdout }}"'
+      
+      - name: Check version
+        run: >
+          if [[ "$(
+            echo "${{ steps.version.outputs.stdout }}" |
+            egrep -o 'jq-.+' | 
+            wc -m )" -lt 4 ]]; then 
+            echo "stdout:"
+            echo "${{ steps.version.outputs.stdout }}"
+            echo "stderr:"
+            echo "${{ steps.version.outputs.stderr }}"
+            echo "exit_code:"
+            echo "${{ steps.version.outputs.exit_code }}"
+            exit 1
+          fi  
 
       - name: use jq
         uses: jadutter/jq-action@develop
         id: test-use-jq
         with:
           cmd: 'jq -n "{foo:\"bar\"} | .foo" '
+
+      - name: Check usage
+        run: >
+          if [[ "${{ steps.test-use-jq.outputs.stdout }}" != "bar" ]]; then 
+            echo "stdout:"
+            echo "${{ steps.test-use-jq.outputs.stdout }}"
+            echo "stderr:"
+            echo "${{ steps.test-use-jq.outputs.stderr }}"
+            echo "exit_code:"
+            echo "${{ steps.test-use-jq.outputs.exit_code }}"
+            exit 1
+          fi  
 
       - name: multi-line command
         uses: jadutter/jq-action@develop
@@ -57,3 +84,16 @@ jobs:
           cmd: >
             echo '{"foo":"bar"}' | 
             jq '.foo == "bar"'
+
+      - name: Check multiline usage
+        run: >
+          if [[ "${{ steps.test-use-jq-multi-line.outputs.stdout }}" != "true" ]]; then 
+            echo "stdout:"
+            echo "${{ steps.test-use-jq-multi-line.outputs.stdout }}"
+            echo "stderr:"
+            echo "${{ steps.test-use-jq-multi-line.outputs.stderr }}"
+            echo "exit_code:"
+            echo "${{ steps.test-use-jq-multi-line.outputs.exit_code }}"
+            exit 1
+          fi  
+

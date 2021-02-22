@@ -25,7 +25,7 @@ jobs:
         uses: jadutter/jq-action@main
         id: test-1
         with:
-          cmd: 'jq -n "{foo:\"bar\"} | .bar" '
+          cmd: 'jq -n "{foo:\"bar\"} | .foo" '
 
       - name: muliline command
         uses: jadutter/jq-action@main
@@ -33,5 +33,26 @@ jobs:
         with:
           # use YAML folded style 
           cmd: >
-            echo '{"foo":"bar"}' | \
+            echo '{"foo":"bar"}' | 
             jq '.foo == "bar"'
+      
+      - name: json file from repo
+        uses: jadutter/jq-action@main
+        id: test-4
+        with:
+          cmd: >
+            jq 'keys' ./test/sample.json
+
+      - name: bash script from repo
+        uses: jadutter/jq-action@main
+        id: test-3
+        with:
+          cmd: >
+            ./tests/test_bash.sh
+
+      - name: jq-module from repo
+        uses: jadutter/jq-action@main
+        id: test-4
+        with:
+          cmd: >
+            jq -n 'include "./tests/test_jq"; sample_function'

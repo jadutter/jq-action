@@ -38,21 +38,21 @@ jobs:
       
       - name: json file from repo
         uses: jadutter/jq-action@main
-        id: test-4
+        id: test-3
         with:
           cmd: >
             jq 'keys' ./test/sample.json
 
       - name: bash script from repo
         uses: jadutter/jq-action@main
-        id: test-3
+        id: test-4
         with:
           cmd: >
             ./tests/test_bash.sh
 
       - name: jq-module from repo
         uses: jadutter/jq-action@main
-        id: test-4
+        id: test-5
         with:
           cmd: >
             jq -n 'include "./tests/test_jq"; sample_function'

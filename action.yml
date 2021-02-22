@@ -1,0 +1,18 @@
+name: 'jq'
+description: 'Run with jq available'
+inputs:
+  cmd:
+    description: 'the bash command you want to run'
+    required: true
+outputs:
+  stdout:
+    description: 'the stdout of your command'
+  stderr:
+    description: 'the stderr of your command'
+  exit_code:
+    description: 'the exit code from your command'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.cmd }}

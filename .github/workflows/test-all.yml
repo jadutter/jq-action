@@ -31,7 +31,8 @@ jobs:
             if [ ! -x '/entrypoint.sh' ]; then
               echo "forgot to make entrypoint.sh executable" >&2
               exit 2
-            fi
+            fi;
+            echo "entrypoint is valid"
 
       - name: Get jq version
         uses: jadutter/jq-action@develop

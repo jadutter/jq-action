@@ -1,9 +1,6 @@
 #!/bin/bash
 
 function test_bash(){
-    echo '{"foo":"bar"}' | 
-    jq 'keys'
-
 	local get_values="$(cat<<EOF
 def values:
 	to_entries |
@@ -16,4 +13,4 @@ EOF
 )"
     jq "${get_values}" ./tests/sample.json
 }
-test_bash 
+test_bash | jq -sc 'add'

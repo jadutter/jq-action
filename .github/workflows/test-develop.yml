@@ -20,23 +20,23 @@ jobs:
         with:
           cmd: >
             if [ ! -d '/tests' ]; then
-              echo "tests directory does not exist " >&2
+              echo "tests directory does not exist " >&2;
               exit 1
             fi;
             if [ ! -f '/tests/sample.json' ]; then
-              echo "'/tests/sample.json' does not exist" >&2
+              echo "'/tests/sample.json' does not exist" >&2;
               exit 2
             fi;
             if [ ! -f '/tests/test_bash.sh' ]; then
-              echo "'/tests/test_bash.sh' does not exist" >&2
+              echo "'/tests/test_bash.sh' does not exist" >&2;
               exit 3
             fi;
             if [ ! -f '/tests/test_jq.jq' ]; then
-              echo "'/tests/test_jq.jq' does not exist" >&2
+              echo "'/tests/test_jq.jq' does not exist" >&2;
               exit 4
             fi;
             if [ ! -x '/tests/test_bash.sh' ]; then
-              echo "'/tests/test_bash.sh' is not executable" >&2
+              echo "'/tests/test_bash.sh' is not executable" >&2;
               exit 5
             fi;
             echo "tests are ready"
@@ -46,7 +46,19 @@ jobs:
         id: test-4
         with:
           cmd: >
-            jq 'keys' ./tests/sample.json
+            jq -c 'keys' ./tests/sample.json
+
+      - name: Check test-4
+        run: >
+          if [[ "$(echo -n "${{ steps.test-4.outputs.stdout }}" )" != "[\"foo\"]" ]]; then 
+            echo "stdout:"
+            echo "${{ steps.test-4.outputs.stdout }}"
+            echo "stderr:"
+            echo "${{ steps.test-4.outputs.stderr }}"
+            echo "exit_code:"
+            echo "${{ steps.test-4.outputs.exit_code }}"
+            exit 1
+          fi  
 
       - name: bash script from repo
         uses: jadutter/jq-action@release
@@ -55,9 +67,33 @@ jobs:
           cmd: >
             ./tests/test_bash.sh
 
+      - name: Check test-5
+        run: >
+          if [[ "${{ steps.test-5.outputs.stdout }}" != "[\"bar\"]" ]]; then 
+            echo "stdout:"
+            echo "${{ steps.test-5.outputs.stdout }}"
+            echo "stderr:"
+            echo "${{ steps.test-5.outputs.stderr }}"
+            echo "exit_code:"
+            echo "${{ steps.test-5.outputs.exit_code }}"
+            exit 1
+          fi  
+
       - name: jq-module from repo
         uses: jadutter/jq-action@release
         id: test-6
         with:
           cmd: >
-            jq -n 'include "./tests/test_jq"; sample_function'
+            jq -cn 'include "./tests/test_jq"; sample_function'
+
+      - name: Check test-6
+        run: >
+          if [[ "${{ steps.test-6.outputs.stdout }}" != "[\"foo\",\"bar\"]" ]]; then 
+            echo "stdout:"
+            echo "${{ steps.test-6.outputs.stdout }}"
+            echo "stderr:"
+            echo "${{ steps.test-6.outputs.stderr }}"
+            echo "exit_code:"
+            echo "${{ steps.test-6.outputs.exit_code }}"
+            exit 1
+          fi 

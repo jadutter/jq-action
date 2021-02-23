@@ -9,13 +9,11 @@ test_result="$(
     npm run build 2>&1 && \
     INPUT_CMD="jq -nc '{foo:\"bar\"}|keys' " npm run test 2>&1
 )"
-expectation="::set-output name=stdout::'[\"foo\"]'"
-echo "Checking results..."
-pass="$(echo -e "${test_result}" | egrep -o "${expectation}" )"
-echo "${pass}"
+expectation="[\"foo\"]"
+pass="$(echo -e "${test_result}" | grep -o "${expectation}" )"
 if [[ "${#pass}" -gt 0 ]]; then
-    echo "success!"
+    echo "Success!"
  else
-    echo -e "failure:\n${test_result}">&2
+    echo -e "Failure:\n${test_result}">&2
     exit 1
 fi 

@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Show commit hash
-        run: 'echo "commit hash is $GITHUB_SHA"'
+        run: 'echo "commit hash is $(git rev-parse HEAD)"'
 
       - name: valid entrypoint
         uses: jadutter/jq-action@v0.0.0

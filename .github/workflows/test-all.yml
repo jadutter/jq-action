@@ -62,11 +62,11 @@ jobs:
         uses: jadutter/jq-action@develop
         id: test-use-jq
         with:
-          cmd: 'jq -n "{foo:\"bar\"} | [.foo]" '
+          cmd: 'jq -cn "{foo:\"bar\"} | [.foo]" '
 
       - name: Check usage
         run: >
-          if [[ ! "${{ steps.test-use-jq.outputs.stdout }}" =~ "[\s*\"bar\"\s*]" ]]; then 
+          if [[ ! "${{ steps.test-use-jq.outputs.stdout }}" == "[\"bar\"]" ]]; then 
             echo "stdout:"
             echo "${{ steps.test-use-jq.outputs.stdout }}"
             echo "stderr:"

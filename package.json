@@ -1,0 +1,25 @@
+{
+  "name": "jq-action",
+  "version": "0.0.0",
+  "description": "This github action opens a container with jq as a valid command",
+  "author": "jadutter <4691511+jadutter@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jadutter/jq-action.git"
+  },
+  "scripts": {
+    "postinstall": "is-ci || husky install",
+    "build": "docker image build -t \"jq-action\" . ",
+    "shell": "docker run --rm -it --entrypoint /bin/bash -e INPUT_CMD jq-action",
+    "test": "docker run --rm -e INPUT_CMD jq-action"
+  },
+  "bugs": {
+    "url": "https://github.com/jadutter/jq-action/issues"
+  },
+  "homepage": "https://github.com/jadutter/jq-action#readme",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "husky": "^5.1.1",
+    "is-ci": "^3.0.0"
+  }
+}

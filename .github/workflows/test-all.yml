@@ -1,8 +1,9 @@
-name: "GitHub-CI: valid jq and entrypoint"
+name: "GitHub-CI: valid image"
 
 on:
     push: {}
     pull_request: {}
+  # execute these tests on every branch, to confirm the branch's HEAD can be used as a github action
 
 jobs:
   test-action:
@@ -75,7 +76,7 @@ jobs:
         uses: jadutter/jq-action@v0.0.0
         id: test-use-jq-multi-line
         with:
-          # use YAML folded style 
+          # use YAML folded style for multi-line command
           cmd: >
             echo '{"foo":"bar"}' | 
             jq '.foo == "bar"'
@@ -91,4 +92,4 @@ jobs:
             echo "${{ steps.test-use-jq-multi-line.outputs.exit_code }}"
             exit 1
           fi  
-
+      # todo: figure out how to handle when stdout would be multi-line

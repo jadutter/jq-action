@@ -1,8 +1,14 @@
 name: "GitHub-CI: development tests"
 
 on:
-    push: {}
-    pull_request: {}
+  push:
+    branches:
+      - "!release"    
+  pull_request:
+    branches:
+      - "!release"    
+  # execute these tests on any branch that is not the 'release' branch, 
+  # as the 'release' branch should not have the 'tests' directory
 jobs:
   test-action:
     runs-on: ubuntu-latest

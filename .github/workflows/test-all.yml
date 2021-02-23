@@ -11,16 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: get HEAD commit
-        id: git-head
-        run: >
-          echo "::set-output name=sha1::$(git rev-parse HEAD)"
-
       - name: Show commit hash
-        run: 'echo "commit hash is ${{ steps.git-head.outputs.sha1 }}"'
+        run: 'echo "commit hash is $GITHUB_SHA"'
 
       - name: valid entrypoint
-        uses: jadutter/jq-action@develop
+        uses: jadutter/jq-action@$GITHUB_SHA
         id: valid-entrypoint
         with:
           cmd: >
@@ -35,7 +30,7 @@ jobs:
             echo "entrypoint is valid"
 
       - name: Get jq version
-        uses: jadutter/jq-action@develop
+        uses: jadutter/jq-action@$GITHUB_SHA
         id: version
         with:
           cmd: 'jq --version'
@@ -59,7 +54,7 @@ jobs:
           fi  
 
       - name: use jq
-        uses: jadutter/jq-action@develop
+        uses: jadutter/jq-action@$GITHUB_SHA
         id: test-use-jq
         with:
           cmd: 'jq -cn "{foo:\"bar\"} | [.foo]" '
@@ -77,7 +72,7 @@ jobs:
           fi  
 
       - name: multi-line command
-        uses: jadutter/jq-action@develop
+        uses: jadutter/jq-action@$GITHUB_SHA
         id: test-use-jq-multi-line
         with:
           # use YAML folded style 

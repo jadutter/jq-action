@@ -1,0 +1,111 @@
+#!/bin/bash
+[ -n "$CI" ] && exit 0
+. "$(dirname "$0")/_/husky.sh"
+
+commit_name="$(git rev-parse --abbrev-ref HEAD)"
+function update_workflows() {
+    local root_dir="$(dirname "$0")/.."
+    local workflow_dir="$root_dir/.github/workflows"
+    # files not currently tracked by the repository
+    local excluded="$(cd ${root_dir} && git ls-files --others --exclude-standard)"
+    local verbose="false"
+    local dry="false"
+    local action_name="jq-action"
+    local commit="$(git rev-parse HEAD)"
+    local workflow_files=()
+    while [ $# -gt 0 ]; do
+        case $1 in
+            -n|--name)
+                shift
+                action_name="$1"
+                shift
+                ;;
+            -f|--file)
+                shift
+                workflow_files+=("$1")
+                shift
+                ;;
+            --workflow_files)
+                shift
+                workflow_files=( $1 )
+                shift
+                ;;
+            -c|--commit)
+                shift
+                commit="$1"
+                shift
+                ;;
+            -v|--verbose)
+                shift
+                verbose="true"
+                ;;
+            -d|--dry)
+                shift
+                dry="true"
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+    if [[ "${verbose}" == "true" ]]; then
+        echo "
+            root_dir \"${root_dir}\"
+            workflow_dir \"${workflow_dir}\"
+            verbose \"${verbose}\"
+            dry \"${dry}\"
+            action_name \"${action_name}\"
+            commit \"${commit}\"
+            " | column -t 
+        echo "\nworkflow_files: \n$(
+                echo "${workflow_files[@]}" | \
+                sed -E 's/ /\\n/g' | \
+                sed -E 's/(^|\\n)/\1    /g;'
+            )
+            \nexcluded:       \n$(
+                echo "${excluded}" | \
+                sed -E 's/^/    /g' 
+            )
+            "
+    fi
+    if [[ "${#workflow_files[@]}" -eq 0 ]]; then 
+        workflow_files=( $(ls -1 "${workflow_dir}") )
+    fi
+    # local workflow_files=( $(ls -1 "${workflow_dir}") )
+    for file in ${workflow_files[@]}; do
+        if [[ ! "$excluded" =~ "$file" ]]; then
+            if [[ "${verbose}" == "true" ]]; then
+                echo "Updating $file"
+            fi
+            file="${workflow_dir}/${file}"
+
+            if [[ "${dry}" == "false" ]]; then
+                # reset the workflow file
+                git checkout -- "${file}"
+            fi
+            # modify the file to use the current hash when running tests
+            content="$(sed -E "s/(${action_name}@)(.+)/\1${commit}/g" "${file}" )"
+            if [[ "${dry}" == "true" || "${verbose}" == "true"  ]]; then
+                echo "${content}" | \
+                sed -E 's/^/    /g' | \
+                grep -B1 "$action_name"
+            fi
+            if [[ "${dry}" == "false" ]]; then
+                echo "${content}" > "${file}"
+            fi
+        fi
+    done
+}
+function main(){
+    # update_workflows --workflow_files "test-all.yml test-develop.yml" $@
+    update_workflows --file "test-all.yml" -c "v0.0.0" $@
+    update_workflows --file "test-develop.yml" -c "develop" $@
+    # if [[ - ]]; then
+    # else
+    #     update_workflows
+    # fi
+}
+
+# main --verbose 
+# exit 1
+

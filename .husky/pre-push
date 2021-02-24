@@ -1,7 +1,89 @@
-#!/bin/sh
+#!/bin/bash
 [ -n "$CI" ] && exit 0
 . "$(dirname "$0")/_/husky.sh"
 
+edit_file() {
+    local dir=""
+    local file=""
+    local pattern=""
+    local highlight=""
+    local verbose="false"
+    local dry="false"
+    while [ $# -gt 0 ]; do
+        case $1 in
+            -d|--dir)
+                shift
+                dir="$1"
+                shift
+                ;;
+            -f|--file)
+                shift
+                file="$1"
+                shift
+                ;;
+            -p|--pattern)
+                shift
+                pattern="$1"
+                shift
+                ;;
+            -h|--highlight)
+                shift
+                highlight="$1"
+                shift
+                ;;
+            -v|--verbose)
+                shift
+                verbose="true"
+                ;;
+            --dry)
+                shift
+                dry="true"
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+    # if [ "${verbose}" == "true" ]; then
+    #     echo "
+    #         dir '${dir}'
+    #         file '${file}'
+    #         pattern '$( echo "${pattern}" | sed -E 's/ / /g' )'
+    #         highlight '$( echo "${highlight}" | sed -E 's/ / /g' )'
+    #         verbose '${verbose}'
+    #         dry '${dry}'
+    #         " | \
+    #         column -t | \
+    #         sed -E 's/^/    /g' >&2
+    # fi
+    file="${dir}/${file}"
+    if [ "${dry}" == "false" ]; then
+        # reset the file
+        git checkout -- "${file}"
+        rc="$?"
+        if [[ "$rc" -gt 0 ]]; then
+            return "$rc"
+        fi
+    fi
+    # modify the file content
+    content="$(sed -E "${pattern}" "${file}" )"
+    rc="$?"
+    if [[ "$rc" -gt 0 ]]; then
+        return "$rc"
+    fi
+    if [[ "${dry}" == "true" || "${verbose}" == "true"  ]]; then
+        # report what the new content is
+        echo "${content}"
+    fi
+    if [ "${dry}" == "false" ]; then
+        # save the changes to the file
+        echo "${content}" > "${file}"
+        rc="$?"
+        if [[ "$rc" -gt 0 ]]; then
+            return "$rc"
+        fi
+    fi
+}
 update_workflows() {
     local root_dir="$(dirname "$0")/.."
     local workflow_dir="$root_dir/.github/workflows"
@@ -9,6 +91,8 @@ update_workflows() {
     local excluded="$(cd ${root_dir} && git ls-files --others --exclude-standard)"
     local verbose="false"
     local dry="false"
+    local verbose_arg=""
+    local dry_arg=""
     local action_name="jq-action"
     local commit="$(git rev-parse HEAD)"
     local workflow_files=()
@@ -48,6 +132,12 @@ update_workflows() {
         esac
     done
     if [ "${verbose}" == "true" ]; then
+        verbose_arg="--verbose"
+    fi
+    if [ "${dry}" == "true" ]; then
+        dry_arg="--dry"
+    fi
+    if [ "${verbose}" == "true" ]; then
         echo "
             root_dir \"${root_dir}\"
             workflow_dir \"${workflow_dir}\"
@@ -72,38 +162,232 @@ update_workflows() {
     fi
     # local workflow_files=( $(ls -1 "${workflow_dir}") )
     for file in ${workflow_files[@]}; do
-        if [ ! "$excluded" =~ "$file" ]; then
-            if [ "${verbose}" == "true" ]; then
-                echo "Updating $file"
+        is_excluded="$( echo "$excluded" | egrep -o "$file" | wc -m )"
+        if [ "${is_excluded}" -eq 0 ]; then
+            # if [ "${verbose}" == "true" ]; then
+            #     echo "Updating $file"
+            # fi
+            echo "Updating $file"
+            
+            
+            # edit_file \
+            #     "${verbose_arg}" \
+            #     "${dry_arg}" \
+            #     --file "${file}" \
+            #     --dir "${workflow_dir}" \
+            #     --pattern "s/(${action_name}@)(.+)/\1${commit}/g" \
+            #     --highlight "-B1 \"$action_name\"" 
+            # echo "edited"
+            # rc="$?"
+            # echo "$rc"
+            if [[ "${dry}" == "true" || "${verbose}" == "true"  ]]; then
+                edit_content="$(
+                    edit_file \
+                        "${verbose_arg}" \
+                        "${dry_arg}" \
+                        --file "${file}" \
+                        --dir "${workflow_dir}" \
+                        --pattern "s/(${action_name}@)(.+)/\1${commit}/g" \
+                        --highlight "-B1 \"$action_name\""
+                )"
+                rc="$?"
+                # echo "${edit_content}" | \
+                #     sed -E 's/^/    /g' | \
+                #     grep -B1 "$action_name"
+                git diff -- "${workflow_dir}/${file}"
+                if [[ "$rc" -gt 0 ]]; then
+                    return "$rc"
+                fi
+            else
+                edit_content="$(
+                    edit_file \
+                        "${verbose_arg}" \
+                        --verbose \
+                        "${dry_arg}" \
+                        --file "${file}" \
+                        --dir "${workflow_dir}" \
+                        --pattern "s/(${action_name}@)(.+)/\1${commit}/g" \
+                        --highlight "-B1 \"$action_name\""
+                )"
+                rc="$?"
+                # echo "not dry and not verbose $edit_content"
+                echo "${edit_content}" | \
+                    sed -E 's/^/    /g' | \
+                    grep -B1 "$action_name"
+                if [[ "$rc" -gt 0 ]]; then
+                    return "$rc"
+                fi
             fi
-            file="${workflow_dir}/${file}"
+            
 
-            if [ "${dry}" == "false" ]; then
-                # reset the workflow file
-                git checkout -- "${file}"
-            fi
-            # modify the file to use the current hash when running tests
-            content="$(sed -E "s/(${action_name}@)(.+)/\1${commit}/g" "${file}" )"
-            if [ "${dry}" == "true" || "${verbose}" == "true"  ]; then
-                echo "${content}" | \
-                sed -E 's/^/    /g' | \
-                grep -B1 "$action_name"
-            fi
-            if [ "${dry}" == "false" ]; then
-                echo "${content}" > "${file}"
-            fi
+            # file="${workflow_dir}/${file}"
+            # if [ "${dry}" == "false" ]; then
+            #     # reset the workflow file
+            #     git checkout -- "${file}"
+            # fi
+            # # modify the file to use the current hash when running tests
+            # content="$(sed -E "s/(${action_name}@)(.+)/\1${commit}/g" "${file}" )"
+            # if [[ "${dry}" == "true" || "${verbose}" == "true"  ]]; then
+            #     echo "${content}" | \
+            #     sed -E 's/^/    /g' | \
+            #     grep -B1 "$action_name"
+            # fi
+            # if [ "${dry}" == "false" ]; then
+            #     echo "${content}" > "${file}"
+            # fi
+
         fi
     done
 }
+remove_tests(){
+    local verbose="false"
+    local dry="false"
+    local verbose_arg=""
+    local dry_arg=""
+    local dir=""
+    local pattern=""
+    while [ $# -gt 0 ]; do
+        case $1 in
+            -d|--dir)
+                shift
+                dir="$1"
+                shift
+                ;;
+            -p|--pattern)
+                shift
+                pattern="$1"
+                shift
+                ;;
+            -v|--verbose)
+                shift
+                verbose="true"
+                ;;
+            --dry)
+                shift
+                dry="true"
+                ;;
+            *)
+                shift
+                ;;
+        esac
+    done
+    if [ "${verbose}" == "true" ]; then
+        verbose_arg="--verbose"
+    fi
+    if [ "${dry}" == "true" ]; then
+        dry_arg="--dry"
+    fi
+    # remove the tests directory; the release branch does not need them
+    if [[ "${dry}" == "true" || "${verbose}" == "true"  ]]; then
+        echo "rm -r \"${tests_dir}\""
+    fi
+    if [ "${dry}" == "false" ]; then
+        rm -r "${tests_dir}"
+        rc="$?"
+        if [[ "$rc" -gt 0 ]]; then
+            return "$rc"
+        fi
+    fi
+
+    if [[ "${dry}" == "true" || "${verbose}" == "true"  ]]; then
+        edit_content="$(
+            edit_file \
+                "${verbose_arg}" \
+                "${dry_arg}" \
+                --file "${file}" \
+                --dir "${workflow_dir}" \
+                --pattern "s/(${action_name}@)(.+)/\1${commit}/g" 
+        )"
+        rc="$?"
+        # echo "${edit_content}" | \
+        #     sed -E 's/^/    /g' | \
+        #     grep -B1 "$action_name"
+        git diff -- "${workflow_dir}/${file}"
+        if [[ "$rc" -gt 0 ]]; then
+            return "$rc"
+        fi
+    else
+        edit_content="$(
+            edit_file \
+                "${verbose_arg}" \
+                --verbose \
+                "${dry_arg}" \
+                --file "${file}" \
+                --dir "${workflow_dir}" \
+                --pattern "s/(${action_name}@)(.+)/\1${commit}/g" \
+                --highlight "-B1 \"$action_name\""
+        )"
+        rc="$?"
+        echo "${edit_content}" | \
+            sed -E 's/^/    /g' | \
+            grep -B1 -A1 "COPY"
+        if [[ "$rc" -gt 0 ]]; then
+            return "$rc"
+        fi
+    fi
+}
 main(){
+    local root_dir="$(dirname "$0")/.."
+    local workflow_dir="$root_dir/.github/workflows"
+    local tests_dir="$root_dir/tests"
+    local dockerfile="$root_dir/Dockerfile"
     local branch_name="$(git rev-parse --abbrev-ref HEAD)"
-    if [ "${branch_name}" =~ "^release" ]; then
+    
+    local is_release="$(echo "${branch_name}" | egrep -o "^release" | wc -m )"
+    local is_develop="$(echo "${branch_name}" | egrep -o "^develop" | wc -m )"
+    
+    # only the release branch should use the release workflow
+    update_workflows --file "test-release.yml" -c "release" $@
+    rc="$?"
+    if [[ "$rc" -gt 0 ]]; then
+        return "$rc"
+    fi
+    # all branches should use the 'all' workflow
+    update_workflows --file "test-all.yml" -c "${branch_name}" $@
+    rc="$?"
+    if [[ "$rc" -gt 0 ]]; then
+        return "$rc"
+    fi
+
+    # feature branches that would merge into develop, should pass the develop workflow
+    # develop branch should pass the develop workflow
+    # release branch should never run the develop workflow, because of the 'on' triggers
+    update_workflows --file "test-develop.yml" -c "${branch_name}" $@
+    rc="$?"
+    if [[ "$rc" -gt 0 ]]; then
+        return "$rc"
+    fi
+
+    if [[ "${is_release}" -gt 0 ]]; then
         echo "working on release"
-    elif [ "${branch_name}" =~ "^develop" ]; then
+        if [[ -d "${tests_dir}" ]]; then
+            # 1) delete the tests directory (if it is present)
+
+            # 2) remove the tests directory from the Dockerfile (if it is present)
+            # sed -E '/COPY.+\/tests/d' "${dockerfile}"
+            remove_tests --dir "${root_dir}" --pattern '/COPY.+\/tests/d'
+
+            rc="$?"
+            if [[ "$rc" -gt 0 ]]; then
+                return "$rc"
+            fi
+        fi
+    elif [[ "${is_develop}" -gt 0 ]]; then
         echo "working on develop"
     else
-        echo "working on ${branch_name}"
+        echo "working on other branch, ${branch_name}"
     fi
+    # commit changes 
+
+    # if commit_name==="develop"
+    #     1) test-all workflow to use 'develop'
+    #     2) test-develop workflow to use 'develop'
+    #     3) test-release workflow to use 'release'
+    # if commit_name==="*"
+    #     1) test-all workflow to use 'release'
+    #     2) test-develop workflow to use 'release'
+    #     3) test-release workflow to use 'release'
+
     # update_workflows --workflow_files "test-all.yml test-develop.yml" $@
     # update_workflows --file "test-all.yml" -c "v0.0.0" $@
     # update_workflows --file "test-develop.yml" -c "develop" $@
@@ -113,6 +397,10 @@ main(){
     # fi
 }
 
-# main --verbose 
+# main --verbose
+# rc="$?"
+# if [[ "$rc" -gt 0 ]]; then
+#     exit "$rc"
+# fi
 # exit 1
 

@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 [ -n "$CI" ] && exit 0
 . "$(dirname "$0")/_/husky.sh"
 
-function update_workflows() {
+update_workflows() {
     local root_dir="$(dirname "$0")/.."
     local workflow_dir="$root_dir/.github/workflows"
     # files not currently tracked by the repository
@@ -47,7 +47,7 @@ function update_workflows() {
                 ;;
         esac
     done
-    if [[ "${verbose}" == "true" ]]; then
+    if [ "${verbose}" == "true" ]; then
         echo "
             root_dir \"${root_dir}\"
             workflow_dir \"${workflow_dir}\"
@@ -67,39 +67,39 @@ function update_workflows() {
             )
             "
     fi
-    if [[ "${#workflow_files[@]}" -eq 0 ]]; then 
+    if [ "${#workflow_files[@]}" -eq 0 ]; then 
         workflow_files=( $(ls -1 "${workflow_dir}") )
     fi
     # local workflow_files=( $(ls -1 "${workflow_dir}") )
     for file in ${workflow_files[@]}; do
-        if [[ ! "$excluded" =~ "$file" ]]; then
-            if [[ "${verbose}" == "true" ]]; then
+        if [ ! "$excluded" =~ "$file" ]; then
+            if [ "${verbose}" == "true" ]; then
                 echo "Updating $file"
             fi
             file="${workflow_dir}/${file}"
 
-            if [[ "${dry}" == "false" ]]; then
+            if [ "${dry}" == "false" ]; then
                 # reset the workflow file
                 git checkout -- "${file}"
             fi
             # modify the file to use the current hash when running tests
             content="$(sed -E "s/(${action_name}@)(.+)/\1${commit}/g" "${file}" )"
-            if [[ "${dry}" == "true" || "${verbose}" == "true"  ]]; then
+            if [ "${dry}" == "true" || "${verbose}" == "true"  ]; then
                 echo "${content}" | \
                 sed -E 's/^/    /g' | \
                 grep -B1 "$action_name"
             fi
-            if [[ "${dry}" == "false" ]]; then
+            if [ "${dry}" == "false" ]; then
                 echo "${content}" > "${file}"
             fi
         fi
     done
 }
-function main(){
+main(){
     local branch_name="$(git rev-parse --abbrev-ref HEAD)"
-    if [[ "${branch_name}" =~ "^release" ]]; then
+    if [ "${branch_name}" =~ "^release" ]; then
         echo "working on release"
-    elif [[ "${branch_name}" =~ "^develop" ]]; then
+    elif [ "${branch_name}" =~ "^develop" ]; then
         echo "working on develop"
     else
         echo "working on ${branch_name}"
@@ -107,12 +107,12 @@ function main(){
     # update_workflows --workflow_files "test-all.yml test-develop.yml" $@
     # update_workflows --file "test-all.yml" -c "v0.0.0" $@
     # update_workflows --file "test-develop.yml" -c "develop" $@
-    # if [[ - ]]; then
+    # if [ - ]; then
     # else
     #     update_workflows
     # fi
 }
 
-main --verbose 
-exit 1
+# main --verbose 
+# exit 1
 

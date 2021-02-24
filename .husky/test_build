@@ -1,0 +1,17 @@
+#!/bin/sh
+test_build () {
+    local INPUT_CMD_VALUE="jq -nc '{foo:\"bar\"}|keys' " 
+
+    echo "Testing build..."
+    test_result="$(
+        INPUT_CMD="${INPUT_CMD_VALUE}" docker run --rm -e INPUT_CMD jq-action 2>&1
+    )"
+    expectation="\[\"foo\"\]"
+    pass="$(echo "${test_result}" | egrep -o "${expectation}" )"
+    if [ "${#pass}" -gt 0 ]; then
+        echo "Success!"
+     else
+        echo "Failure:\n${test_result}">&2
+        return 1
+    fi 
+}

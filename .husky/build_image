@@ -1,0 +1,6 @@
+#!/bin/bash
+build_image () {
+    echo "Building image..."
+    docker image build -t "jq-action" .  
+    return $?
+}

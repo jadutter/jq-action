@@ -9,9 +9,9 @@
   },
   "scripts": {
     "postinstall": "is-ci || husky install",
-    "build": "docker image build -t \"jq-action\" . ",
+    "build": ". ./.husky/build_image && build_image",
     "shell": "docker run --rm -it --entrypoint /bin/bash -e INPUT_CMD jq-action",
-    "test": "docker run --rm -e INPUT_CMD jq-action"
+    "test": ". ./.husky/test_build && test_build"
   },
   "bugs": {
     "url": "https://github.com/jadutter/jq-action/issues"

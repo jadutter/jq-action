@@ -1,19 +1,23 @@
 #!/bin/sh
 [ -n "$CI" ] && exit 0
 
+# source 'husky.sh'
 . "$(dirname "$0")/_/husky.sh"
 
 
-echo "Testing build..."
-test_result="$(
-    npm run build 2>&1 && \
-    INPUT_CMD="jq -nc '{foo:\"bar\"}|keys' " npm run test 2>&1
-)"
-expectation="[\"foo\"]"
-pass="$(echo -e "${test_result}" | grep -o "${expectation}" )"
-if [[ "${#pass}" -gt 0 ]]; then
-    echo "Success!"
- else
-    echo -e "Failure:\n${test_result}">&2
-    exit 1
-fi 
+. "$(dirname "$0")/build_image"
+. "$(dirname "$0")/test_build"
+
+main () {
+    build_image
+    rc="$?"
+    if [ "$rc" -gt 0 ]; then
+        exit $rc
+    fi
+    test_build
+    rc="$?"
+    if [ "$rc" -gt 0 ]; then
+        exit $rc
+    fi
+}
+main

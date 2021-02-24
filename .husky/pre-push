@@ -2,7 +2,6 @@
 [ -n "$CI" ] && exit 0
 . "$(dirname "$0")/_/husky.sh"
 
-commit_name="$(git rev-parse --abbrev-ref HEAD)"
 function update_workflows() {
     local root_dir="$(dirname "$0")/.."
     local workflow_dir="$root_dir/.github/workflows"
@@ -97,15 +96,23 @@ function update_workflows() {
     done
 }
 function main(){
+    local branch_name="$(git rev-parse --abbrev-ref HEAD)"
+    if [[ "${branch_name}" =~ "^release" ]]; then
+        echo "working on release"
+    elif [[ "${branch_name}" =~ "^develop" ]]; then
+        echo "working on develop"
+    else
+        echo "working on ${branch_name}"
+    fi
     # update_workflows --workflow_files "test-all.yml test-develop.yml" $@
-    update_workflows --file "test-all.yml" -c "v0.0.0" $@
-    update_workflows --file "test-develop.yml" -c "develop" $@
+    # update_workflows --file "test-all.yml" -c "v0.0.0" $@
+    # update_workflows --file "test-develop.yml" -c "develop" $@
     # if [[ - ]]; then
     # else
     #     update_workflows
     # fi
 }
 
-# main --verbose 
-# exit 1
+main --verbose 
+exit 1
 

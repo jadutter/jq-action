@@ -16,7 +16,7 @@ jobs:
         run: 'echo "commit hash is $(git rev-parse HEAD)"'
 
       - name: valid entrypoint
-        uses: jadutter/jq-action@v0.0.0
+        uses: jadutter/jq-action@test-workflows
         id: valid-entrypoint
         with:
           cmd: >
@@ -31,7 +31,7 @@ jobs:
             echo "entrypoint is valid"
 
       - name: Get jq version
-        uses: jadutter/jq-action@v0.0.0
+        uses: jadutter/jq-action@test-workflows
         id: version
         with:
           cmd: 'jq --version'
@@ -55,7 +55,7 @@ jobs:
           fi  
 
       - name: use jq
-        uses: jadutter/jq-action@v0.0.0
+        uses: jadutter/jq-action@test-workflows
         id: test-use-jq
         with:
           cmd: 'jq -cn "{foo:\"bar\"} | [.foo]" '
@@ -73,7 +73,7 @@ jobs:
           fi  
 
       - name: multi-line command
-        uses: jadutter/jq-action@v0.0.0
+        uses: jadutter/jq-action@test-workflows
         id: test-use-jq-multi-line
         with:
           # use YAML folded style for multi-line command

@@ -1,8 +1,12 @@
 name: "GitHub-CI: release tests"
 
 on:
-    push: {}
-    pull_request: {}
+  push:
+    branch:
+      - "release"
+  pull_request:
+    branch:
+      - "release"
 jobs:
   test-action:
     runs-on: ubuntu-latest

@@ -1,3 +1,12 @@
-#!/bin/bash
+#!/bin/sh
 [ -n "$CI" ] && exit 0
 . "$(dirname "$0")/_/husky.sh"
+
+"$(dirname "$0")/../scripts/prepareBranch.sh"
+
+if [ "$?" -gt 0 ]; then
+	echo "Sorry, but the workflows were unable to be automatically configured."
+    exit 1
+else
+	echo "Ready to push."
+fi

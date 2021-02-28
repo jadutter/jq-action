@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: clean directory
-        uses: jadutter/jq-action@test-workflows
+        uses: jadutter/jq-action@release
         id: clean-directory
         with:
           cmd: >

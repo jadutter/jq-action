@@ -5,19 +5,9 @@
 . "$(dirname "$0")/_/husky.sh"
 
 
-. "$(dirname "$0")/build_image"
-. "$(dirname "$0")/test_build"
+. "$(dirname "$0")/../scripts/buildImage.sh" $@
 
-main () {
-    build_image
-    rc="$?"
-    if [ "$rc" -gt 0 ]; then
-        exit $rc
-    fi
-    test_build
-    rc="$?"
-    if [ "$rc" -gt 0 ]; then
-        exit $rc
-    fi
-}
-main
+echo ""
+
+. "$(dirname "$0")/../scripts/testBuild.sh" $@
+

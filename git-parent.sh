@@ -34,3 +34,4 @@ function git-parent(){
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then 
     git-parent $@
 fi
+

@@ -1,83 +1,120 @@
-#!/bin/sh
+#!/bin/bash
 # . "$(dirname "$0")/_/husky.sh"
 
 
-# true=1
-# false=0
+# # true=1
+# # false=0
 
-getBranchName()
-{
-    echo $(git rev-parse --abbrev-ref HEAD)
+# getBranchName()
+# {
+#     echo $(git rev-parse --abbrev-ref HEAD)
+# }
+
+# isNewBranch()
+# {   
+#     local logQuery=$(
+#         git log --all --not \
+#             $(
+#                 git rev-list --no-walk \
+#                 --exclude=refs/heads/$(getBranchName) \
+#                 --exclude=HEAD \
+#                 --all
+#             )
+#         )  
+#     if [ -z $logQuery ]; then 
+#         echo true
+#     else
+#         echo false
+#     fi  
+# }
+
+# # git show-ref --head | egrep heads
+
+# # # commits=($(git rev-list --no-walk --all))
+# # # for c in ${commits[@]}; do git name-rev --name-only $c; done
+
+
+# # 47399dcdd7ac85ac285504f575d8996f7eaff705 refs/heads/alpine
+# # b6cae60d000dfba629d47cf06358eab12a977c33 refs/heads/debian
+# # 445b824cfbeeb3a505e248ce25d9874cc8b8ff38 refs/heads/develop
+# # 172889265485dbb4cc195b368aefaa811910a0ae refs/heads/foo
+# # 8a82109ebbc119a8b09f919730ba4fbb3d33a783 refs/heads/release
+# # 0fffae14d5ff5f5197af51f097ba36ccc2809bbd refs/heads/test-workflow
+# # 172889265485dbb4cc195b368aefaa811910a0ae refs/heads/test-workflows
+
+# # 172889265485dbb4cc195b368aefaa811910a0ae
+# # 8a82109ebbc119a8b09f919730ba4fbb3d33a783
+# # 445b824cfbeeb3a505e248ce25d9874cc8b8ff38
+# # 47399dcdd7ac85ac285504f575d8996f7eaff705
+# # b6cae60d000dfba629d47cf06358eab12a977c33
+# # 0fffae14d5ff5f5197af51f097ba36ccc2809bbd
+
+# # git diff-tree --no-commit-id --name-only -r <SHA1>
+# # # or
+# # git ls-tree -d --name-only -r <SHA1>
+
+
+# # git show-ref --verify --quiet refs/heads/foo && echo "true" || echo "false"
+
+
+
+
+
+
+# # function created(){
+# #     git reflog --date=local | \
+# #         grep checkout: | \
+# #         grep "$1" | \
+# #         tail -1 | \
+# #         cut -d{ -f2 | \
+# #         cut -d} -f1
+# # }
+
+
+
+# # branches=( $(git branch -v | sed -e 's/*/ /' | awk '{print $1}' ) )
+
+# # for branch in ${branches[@]}; do
+# #     # echo "$(created $branch)"
+# #     echo "$(created $branch) $branch"
+# # done | sort
+
+
+
+function git-parent(){
+    branch="${1:-HEAD}"
+    branch="$( git rev-parse --abbrev-ref "${branch}" )"
+    if [[ "${#branch}" -eq 0 ]]; then
+        echo "Please specify a valid branch">&2
+        return 1
+    fi
+    # 1) %gD can give us the timestamp of when a git event happened, 
+    # but the argument --date needs to be supplied for it to use a date instead
+    # of the index number
+    # 2) "iso-strict" is to prevent spacing, and make it easier to ensure the entries are sorted
+    # 3) %gs gives us a description of the git event
+    # 4) the first sed command extracts just the timestamp from %gD (dont ask me why there isnt a pretty format for this field)
+    # 5) the second and third sed commands ensure we only use events with actual branch names instead of a hash
+    # 6) the fourth sed command pulls the branch we jumped from, to reach the current branch, and prints the line
+    # 7) the egrep command is because macOS sed wouldnt cooperate with a backreference in the match pattern
+    # 8) the tail command pulls the oldest reference; presumably the ancestor the current branch spawned from
+            # s/checkout: moving from (.+) to ${branch}/\1/gp;
+    git reflog \
+        --date="iso-strict" \
+        --pretty="%gD %H %gs" \
+        | sed -nE "
+            s/[a-zA-Z0-9]+@\{(.+)\}/\1/g; 
+            /from [a-d0-9]{40}/d;
+            /to [a-d0-9]{40}/d;
+            /checkout: moving from (.+) to ${branch}/p;
+        " \
+        | egrep -v 'checkout: moving from (\w+) to \1' \
+        # | tail -n 1
 }
 
-isNewBranch()
-{   
-    local logQuery=$(
-        git log --all --not \
-            $(
-                git rev-list --no-walk \
-                --exclude=refs/heads/$(getBranchName) \
-                --exclude=HEAD \
-                --all
-            )
-        )  
-    if [ -z $logQuery ]; then 
-        echo true
-    else
-        echo false
-    fi  
-}
-
-git show-ref --head | egrep heads
-
-# commits=($(git rev-list --no-walk --all))
-# for c in ${commits[@]}; do git name-rev --name-only $c; done
-
-
-47399dcdd7ac85ac285504f575d8996f7eaff705 refs/heads/alpine
-b6cae60d000dfba629d47cf06358eab12a977c33 refs/heads/debian
-445b824cfbeeb3a505e248ce25d9874cc8b8ff38 refs/heads/develop
-172889265485dbb4cc195b368aefaa811910a0ae refs/heads/foo
-8a82109ebbc119a8b09f919730ba4fbb3d33a783 refs/heads/release
-0fffae14d5ff5f5197af51f097ba36ccc2809bbd refs/heads/test-workflow
-172889265485dbb4cc195b368aefaa811910a0ae refs/heads/test-workflows
-
-172889265485dbb4cc195b368aefaa811910a0ae
-8a82109ebbc119a8b09f919730ba4fbb3d33a783
-445b824cfbeeb3a505e248ce25d9874cc8b8ff38
-47399dcdd7ac85ac285504f575d8996f7eaff705
-b6cae60d000dfba629d47cf06358eab12a977c33
-0fffae14d5ff5f5197af51f097ba36ccc2809bbd
-
-git diff-tree --no-commit-id --name-only -r <SHA1>
-# or
-git ls-tree -d --name-only -r <SHA1>
-
-
-git show-ref --verify --quiet refs/heads/foo && echo "true" || echo "false"
+git-parent 
 
 
 
-
-
-
-function created(){
-    git reflog --date=local | \
-        grep checkout: | \
-        grep "$1" | \
-        tail -1 | \
-        cut -d{ -f2 | \
-        cut -d} -f1
-}
-
-
-
-branches=( $(git branch -v | sed -e 's/*/ /' | awk '{print $1}' ) )
-
-for branch in ${branches[@]}; do
-    # echo "$(created $branch)"
-    echo "$(created $branch) $branch"
-done | sort
-
-
-
+# check if the most recent commits (~5) to the current branch, also exist on the parent branch.
+# if no commits exist only on the current, then this is probably a new branch 

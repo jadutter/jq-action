@@ -2,11 +2,21 @@
 [ -n "$CI" ] && exit 0
 . "$(dirname "$0")/_/husky.sh"
 
+echo "Checking if we can push..."
+
+branchHashBefore="$(git rev-parse HEAD)"
+
 "$(dirname "$0")/../scripts/prepareBranch.sh"
+
+branchHashAfter="$(git rev-parse HEAD)"
 
 if [ "$?" -gt 0 ]; then
 	echo "Sorry, but the workflows were unable to be automatically configured."
     exit 1
-else
+elif [ "${branchHashBefore}" = "${branchHashAfter}" ]; then
 	echo "Ready to push."
+else
+	echo "Workflows were automatically configured."
+	echo "Please try pushing again."
+	exit 1
 fi

@@ -89,7 +89,7 @@ jobs:
           echo "declared var2";
           var3="$(echo "${data}" | jq 'to_entries' )";
           echo "declared var3";
-          var4="$(echo "${data}" | jq )";
+          var4="$(echo "${data}" | jq '.' )";
           echo "declared var4";
           echo "::set-output name=var0::$(echo "${var0}" | sed -E "${sed_command}")";
           echo "set var0";

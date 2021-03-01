@@ -1,8 +1,8 @@
 name: "GitHub-CI: valid image"
 
 on:
-    push: {}
-    pull_request: {}
+  push: {}
+  pull_request: {}
   # execute these tests on every branch, to confirm the branch's HEAD can be used as a github action
 
 jobs:
@@ -34,11 +34,11 @@ jobs:
         uses: jadutter/jq-action@test-workflows
         id: version
         with:
-          cmd: 'jq --version'
+          cmd: "jq --version"
 
       - name: Show version
         run: 'echo "jq version is ${{ steps.version.outputs.stdout }}"'
-      
+
       - name: Check version
         run: >
           if [[ "$(
@@ -52,7 +52,7 @@ jobs:
             echo "exit_code:"
             echo "${{ steps.version.outputs.exit_code }}"
             exit 1
-          fi  
+          fi
 
       - name: use jq
         uses: jadutter/jq-action@test-workflows
@@ -70,7 +70,7 @@ jobs:
             echo "exit_code:"
             echo "${{ steps.test-use-jq.outputs.exit_code }}"
             exit 1
-          fi  
+          fi
 
       - name: multi-line command
         uses: jadutter/jq-action@test-workflows
@@ -91,5 +91,49 @@ jobs:
             echo "exit_code:"
             echo "${{ steps.test-use-jq-multi-line.outputs.exit_code }}"
             exit 1
-          fi  
-      # todo: figure out how to handle when stdout would be multi-line
+          fi
+
+      - name: multi-line input and output
+        uses: jadutter/jq-action@test-workflows
+        id: test-use-jq-multi-line-output
+        with:
+          cmd: >
+            jq -n '{
+              types: {
+                null: null,
+                boolean: false,
+                number: 123,
+                strings: {
+                  single: "lorem",
+                  cost: "$1.99",
+                  percentage: "99.99% complete",
+                  multiline: "Task:\n\t100% complete"
+                },
+                array: [],
+                object: {}
+              }
+            }' | 
+            jq -r '
+                [
+                    {
+                        types: .types,
+                        array: (
+                            .types | to_entries | map(.value)
+                        )
+                    },
+                    getpath(["types", "strings", "multiline"])
+                ] | .[]
+            '
+
+      - name: Check multiline usage
+        run: >
+          expect='{\n  "types": {\n    "null": null,\n    "boolean": false,\n    "number": 123,\n    "strings": {\n      "single": "lorem",\n      "cost": "$1.99",\n      "percentage": "99.99% complete",\n      "multiline": "Task:\n\t100% complete"\n    },\n    "array": [],\n    "object": {}\n  },\n  "array": [\n    null,\n    false,\n    123,\n    {\n      "single": "lorem",\n      "cost": "$1.99",\n      "percentage": "99.99% complete",\n      "multiline": "Task:\\n\\t100% complete"\n    },\n    [],\n    {}\n  ]\n}\nTask:\n\tt100% complete';
+          if [[ "${{ steps.test-use-jq-multi-line-output.outputs.stdout }}" != "$expect" ]]; then 
+            echo "stdout:"
+            echo "${{ steps.test-use-jq-multi-line-output.outputs.stdout }}"
+            echo "stderr:"
+            echo "${{ steps.test-use-jq-multi-line-output.outputs.stderr }}"
+            echo "exit_code:"
+            echo "${{ steps.test-use-jq-multi-line-output.outputs.exit_code }}"
+            exit 1
+          fi

@@ -223,20 +223,20 @@ prepareBranch(){
         # list staged files
         echo "Commiting changes..."
 
-        # output="$(
-        #     git add "${dockerfile}" "${testsDir}" "${workflowDir}" 2>&1
-        #     # commit changes 
-        #     git commit -m "workflows updated." --no-verify 2>&1
-        # )"
-        # echo "${output}"| enclose
+        output="$(
+            git add "${dockerfile}" "${testsDir}" "${workflowDir}" 2>&1
+            # commit changes 
+            git commit -m "workflows updated." --no-verify 2>&1
+        )"
+        echo "${output}"| enclose
 
-        # rc="$?"
-        # if [ "$rc" -gt 0 ]; then
-        #     # undo changes we made...?
-        #     stderr "Failed to commit the changes to ${branchName}."
-        #     restoreChanges
-        #     return "$rc"
-        # fi
+        rc="$?"
+        if [ "$rc" -gt 0 ]; then
+            # undo changes we made...?
+            stderr "Failed to commit the changes to ${branchName}."
+            restoreChanges
+            return "$rc"
+        fi
     fi
 
     restoreChanges

@@ -91,7 +91,13 @@ file="${dir}/${file}"
 # fi
 
 # modify the file content
-content="$(sed -E "${pattern}" "${file}" 2>&1 )"
+content="$(
+    sed -E "
+        # replace what we've been asked to replace
+        ${pattern};
+        # escape backslash notation that we would otherwise be undoing
+        s/\\\\/\\\\\\\\/g;
+    " "${file}" 2>&1 )"
 rc="$?"
 if [ "$rc" -gt 0 ]; then
     echo "$content" >&2

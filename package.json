@@ -11,7 +11,8 @@
     "postinstall": "is-ci || husky install",
     "build": ". ./.husky/build_image && build_image",
     "shell": "docker run --rm -it --entrypoint /bin/bash -e INPUT_CMD jq-action",
-    "test": ". ./.husky/test_build && test_build"
+    "test": ". ./.husky/test_build && test_build",
+    "prepare": "husky install"
   },
   "bugs": {
     "url": "https://github.com/jadutter/jq-action/issues"

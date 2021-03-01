@@ -76,13 +76,13 @@ if [ "${debug}" = "true" ]; then
     rc="$?"
     if [ "$rc" -gt 0 ]; then
         stderr "Failed to reset ${rootDir}/${file}"
-        return "$rc"
+        exit "$rc"
     fi
     git checkout -- "${testsDir}"
     rc="$?"
     if [ "$rc" -gt 0 ]; then
         stderr "Failed to reset ${testsDir}"
-        return "$rc"
+        exit "$rc"
     fi
 fi
 

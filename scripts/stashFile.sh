@@ -69,20 +69,20 @@ if [ "${undoStash}" = "true" ]; then
         exit 1
     else
         git stash pop "${stashIndex}"
-        return $?
+        exit $?
     fi
 else
     if [ "${#file}" -gt 0 ]; then
         if [ -f "${file}" ]; then
             git stash push -m "${stashName}" -- "${file}"
-            return $?
+            exit $?
         else
             stderr "File does not exist: '${file}'"
             exit 1
         fi
     else
         git stash push -m "${stashName}" 
-        return $?
+        exit $?
     fi
 fi
 

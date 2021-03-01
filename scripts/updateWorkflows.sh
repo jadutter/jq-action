@@ -139,7 +139,7 @@ while read file; do
         #     rc="$?"
         #     if [ "$rc" -gt 0 ]; then
         #         stderr "Failed to reset ${workflowDir}/${file}"
-        #         return "$rc"
+        #         exit "$rc"
         #     fi
         # fi
         editContent="$(

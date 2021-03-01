@@ -86,7 +86,7 @@ file="${dir}/${file}"
 #     rc="$?"
 #     if [ "$rc" -gt 0 ]; then
 #         stderr "Failed to reset ${dir}/${file}"
-#         return "$rc"
+#         exit "$rc"
 #     fi
 # fi
 
@@ -95,7 +95,7 @@ content="$(sed -E "${pattern}" "${file}" 2>&1 )"
 rc="$?"
 if [ "$rc" -gt 0 ]; then
     echo "$content" >&2
-    return "$rc"
+    exit "$rc"
 fi
 if [ "${dry}" = "true" ] || [ "${verbose}" = "true" ]; then
     # report what the new content is
@@ -104,6 +104,6 @@ fi
 if [ "${dry}" = "false" ]; then
     # save the changes to the file
     echo "${content}" > "${file}"
-    return $?
+    exit $?
 fi
 

@@ -16,4 +16,4 @@ done
 
 echo "Building image..."
 docker image build -t "${image_name}" .  | indent
-return $?
+exit $?

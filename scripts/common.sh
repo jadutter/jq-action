@@ -44,7 +44,7 @@ indentation() {
         case "$1" in
             -q|--quantity) 
                 shift
-                quantity="$(echo -en "$1" | egrep -o "[0-9]+" )"
+                quantity="$(printf "$1" | egrep -o "[0-9]+" )"
                 shift
                 ;;
             -c|--character) 
@@ -58,6 +58,11 @@ indentation() {
                 ;;
         esac
     done
+    # echo "
+    #     quantity '${quantity}'
+    #     character '${character}'
+    #     spareArgs '${spareArgs}'
+    # " | column -t >&2
     if [ "${#character}" -eq 0 ]; then
         character=" "
     fi
@@ -76,7 +81,8 @@ indentation() {
 
 indent() {
     local whitespace="$(indentation "$@")"
-    cat | sed -E "s/(^|\n)/\1${whitespace}/g"
+    # echo "${whitespace}" >&2
+    cat | LC_CTYPE=C sed -E "$( echo "s/^/${whitespace}/g")"
 }
 
 enclose() {
@@ -142,31 +148,9 @@ enclose() {
     if [ "${#output}" -gt 0 ]; then
         echo "${upper_left}${bar}
 $output
-${lower_left}${bar}" | indent \
+${lower_left}${bar}" \
+        | indent \
         --quantity "${indentQuantity}" \
         --character "${character}"
     fi
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

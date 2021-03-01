@@ -42,21 +42,21 @@ jobs:
       - name: Manually set-output variables
         id: manual-vars
         run: >
-          data="$(jq -n '{
-              types: {
-                null: null,
-                boolean: false,
-                number: 123,
-                strings: {
-                  single: "lorem",
-                  cost: "$1.99",
-                  percentage: "99.99% complete",
-                  multiline: "Task:\n\t100% complete"
+          data='{
+              "types": {
+                "null": null,
+                "boolean": false,
+                "number": 123,
+                "strings": {
+                  "single": "lorem",
+                  "cost": "$1.99",
+                  "percentage": "99.99% complete",
+                  "multiline": "Task:\n\t100% complete"
                 },
-                array: [],
-                object: {}
+                "array": [],
+                "object": {}
               }
-            }')";
+            }';
           sed_command='
             :nextLine;
             {
@@ -92,21 +92,21 @@ jobs:
 
       - name: Check manual set-output
         run: >
-          data="$(jq -n '{
-              types: {
-                null: null,
-                boolean: false,
-                number: 123,
-                strings: {
-                  single: "lorem",
-                  cost: "$1.99",
-                  percentage: "99.99% complete",
-                  multiline: "Task:\n\t100% complete"
+          data='{
+              "types": {
+                "null": null,
+                "boolean": false,
+                "number": 123,
+                "strings": {
+                  "single": "lorem",
+                  "cost": "$1.99",
+                  "percentage": "99.99% complete",
+                  "multiline": "Task:\n\t100% complete"
                 },
-                array: [],
-                object: {}
+                "array": [],
+                "object": {}
               }
-            }')";
+            }';
           var0="$(echo "${data}" | jq 'paths | length' )";
           var1="$(echo "${data}" | jq 'paths' )";
           var2="$(echo "${data}" | jq 'paths(scalars)' )";

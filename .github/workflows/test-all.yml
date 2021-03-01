@@ -39,6 +39,99 @@ jobs:
       - name: Show version
         run: 'echo "jq version is ${{ steps.version.outputs.stdout }}"'
 
+      - name: Manually set-output variables
+        id: manual-vars
+        run: >
+          data="$(jq -n '{
+              types: {
+                null: null,
+                boolean: false,
+                number: 123,
+                strings: {
+                  single: "lorem",
+                  cost: "$1.99",
+                  percentage: "99.99% complete",
+                  multiline: "Task:\n\t100% complete"
+                },
+                array: [],
+                object: {}
+              }
+            }')";
+          sed_command='
+            :nextLine;
+            {
+                # add the next line to the pattern space
+                N;
+            }
+            # if not the end of the file
+            $!{
+                # grab another line
+                b nextLine;
+            }
+            # esape newline characters
+            s/\n/%0A/g;
+            s/\r/%0D/g;
+            # escape characters that would interfere with the `echo ":::set-output...`
+            s/("|\\|\$)/\\\1/g;
+            # escape percentage sign
+            s/%/%25/g;
+            # escape whitespace 
+            s/  /%09/g;
+            s/ /%20/g;
+            ';
+          var0="$(echo "${data}" | jq 'paths | length' )";
+          var1="$(echo "${data}" | jq 'paths' )";
+          var2="$(echo "${data}" | jq 'paths(scalars)' )";
+          var3="$(echo "${data}" | jq 'to_entries' )";
+          var4="$(echo "${data}" | jq )";
+          echo "::set-output name=var0::$(echo "${var0}" | sed -E "${sed_command}")"
+          echo "::set-output name=var1::$(echo "${var1}" | sed -E "${sed_command}")"
+          echo "::set-output name=var2::$(echo "${var2}" | sed -E "${sed_command}")"
+          echo "::set-output name=var3::$(echo "${var3}" | sed -E "${sed_command}")"
+          echo "::set-output name=var4::$(echo "${var4}" | sed -E "${sed_command}")"
+
+      - name: Check manual set-output
+        run: >
+          data="$(jq -n '{
+              types: {
+                null: null,
+                boolean: false,
+                number: 123,
+                strings: {
+                  single: "lorem",
+                  cost: "$1.99",
+                  percentage: "99.99% complete",
+                  multiline: "Task:\n\t100% complete"
+                },
+                array: [],
+                object: {}
+              }
+            }')";
+          var0="$(echo "${data}" | jq 'paths | length' )";
+          var1="$(echo "${data}" | jq 'paths' )";
+          var2="$(echo "${data}" | jq 'paths(scalars)' )";
+          var3="$(echo "${data}" | jq 'to_entries' )";
+          if [[ "${{ steps.manual-vars.outputs.var0 }}" != "${var0}" ]]; then 
+            echo "var0:\n\texpected:'${var0}'\n\treceived:'${{ steps.test-use-jq-multi-line.outputs.var0 }}'"
+            exit 1
+          fi;
+          if [[ "${{ steps.manual-vars.outputs.var1 }}" != "${var1}" ]]; then 
+            echo "var1:\n\texpected:'${var1}'\n\treceived:'${{ steps.test-use-jq-multi-line.outputs.var1 }}'"
+            exit 1
+          fi;
+          if [[ "${{ steps.manual-vars.outputs.var2 }}" != "${var2}" ]]; then 
+            echo "var2:\n\texpected:'${var2}'\n\treceived:'${{ steps.test-use-jq-multi-line.outputs.var2 }}'"
+            exit 1
+          fi;
+          if [[ "${{ steps.manual-vars.outputs.var3 }}" != "${var3}" ]]; then 
+            echo "var3:\n\texpected:'${var3}'\n\treceived:'${{ steps.test-use-jq-multi-line.outputs.var3 }}'"
+            exit 1
+          fi;
+          if [[ "${{ steps.manual-vars.outputs.var4 }}" != "${var4}" ]]; then 
+            echo "var4:\n\texpected:'${var4}'\n\treceived:'${{ steps.test-use-jq-multi-line.outputs.var4 }}'"
+            exit 1
+          fi;
+
       - name: Check version
         run: >
           if [[ "$(

@@ -43,52 +43,64 @@ jobs:
         id: manual-vars
         run: >
           data='{
-              "types": {
-                "null": null,
-                "boolean": false,
-                "number": 123,
-                "strings": {
-                  "single": "lorem",
-                  "cost": "$1.99",
-                  "percentage": "99.99% complete",
-                  "multiline": "Task:\n\t100% complete"
-                },
-                "array": [],
-                "object": {}
-              }
-            }';
+                "types": {
+                  "null": null,
+                  "boolean": false,
+                  "number": 123,
+                  "strings": {
+                    "single": "lorem",
+                    "cost": "$1.99",
+                    "percentage": "99.99% complete",
+                    "multiline": "Task:\n\t100% complete"
+                  },
+                  "array": [],
+                  "object": {}
+                }
+              }';
+          echo "declared data";
           sed_command='
-            :nextLine;
-            {
-                # add the next line to the pattern space
-                N;
-            }
-            # if not the end of the file
-            $!{
-                # grab another line
-                b nextLine;
-            }
-            # esape newline characters
-            s/\n/%0A/g;
-            s/\r/%0D/g;
-            # escape characters that would interfere with the `echo ":::set-output...`
-            s/("|\\|\$)/\\\1/g;
-            # escape percentage sign
-            s/%/%25/g;
-            # escape whitespace 
-            s/  /%09/g;
-            s/ /%20/g;
+              :nextLine;
+              {
+                  # add the next line to the pattern space
+                  N;
+              }
+              # if not the end of the file
+              $!{
+                  # grab another line
+                  b nextLine;
+              }
+              # esape newline characters
+              s/\n/%0A/g;
+              s/\r/%0D/g;
+              # escape characters that would interfere with the `echo ":::set-output...`
+              s/("|\\|\$)/\\\1/g;
+              # escape percentage sign
+              s/%/%25/g;
+              # escape whitespace 
+              s/  /%09/g;
+              s/ /%20/g;
             ';
+          echo "declared sed_command";
           var0="$(echo "${data}" | jq 'paths | length' )";
+          echo "declared var0";
           var1="$(echo "${data}" | jq 'paths' )";
+          echo "declared var1";
           var2="$(echo "${data}" | jq 'paths(scalars)' )";
+          echo "declared var2";
           var3="$(echo "${data}" | jq 'to_entries' )";
+          echo "declared var3";
           var4="$(echo "${data}" | jq )";
-          echo "::set-output name=var0::$(echo "${var0}" | sed -E "${sed_command}")"
-          echo "::set-output name=var1::$(echo "${var1}" | sed -E "${sed_command}")"
-          echo "::set-output name=var2::$(echo "${var2}" | sed -E "${sed_command}")"
-          echo "::set-output name=var3::$(echo "${var3}" | sed -E "${sed_command}")"
-          echo "::set-output name=var4::$(echo "${var4}" | sed -E "${sed_command}")"
+          echo "declared var4";
+          echo "::set-output name=var0::$(echo "${var0}" | sed -E "${sed_command}")";
+          echo "set var0";
+          echo "::set-output name=var1::$(echo "${var1}" | sed -E "${sed_command}")";
+          echo "set var1";
+          echo "::set-output name=var2::$(echo "${var2}" | sed -E "${sed_command}")";
+          echo "set var2";
+          echo "::set-output name=var3::$(echo "${var3}" | sed -E "${sed_command}")";
+          echo "set var3";
+          echo "::set-output name=var4::$(echo "${var4}" | sed -E "${sed_command}")";
+          echo "set var4";
 
       - name: Check manual set-output
         run: >

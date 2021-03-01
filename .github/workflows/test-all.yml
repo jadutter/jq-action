@@ -6,38 +6,14 @@ on:
   # execute these tests on every branch, to confirm the branch's HEAD can be used as a github action
 
 jobs:
-  test-action:
+  # confirm we know how to properly escape the data that goes into set-output variables
+  job-test-set-output:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Show commit hash
-        run: 'echo "commit hash is $(git rev-parse HEAD)"'
-
-      - name: valid entrypoint
-        uses: jadutter/jq-action@test-workflows
-        id: valid-entrypoint
-        with:
-          cmd: >
-            if [ ! -f '/entrypoint.sh' ]; then
-              echo "forgot to add entrypoint.sh" >&2
-              exit 1
-            fi;
-            if [ ! -x '/entrypoint.sh' ]; then
-              echo "forgot to make entrypoint.sh executable" >&2
-              exit 2
-            fi;
-            echo "entrypoint is valid"
-
-      - name: Get jq version
-        uses: jadutter/jq-action@test-workflows
-        id: version
-        with:
-          cmd: "jq --version"
-
-      - name: Show version
-        run: 'echo "jq version is ${{ steps.version.outputs.stdout }}"'
+      - name: Add jq
+        id: setup-vanilla-ubuntu
+        run: 'apt-get update && apt-get install jq && echo "Added jq"'
 
       - name: Manually set-output variables
         id: manual-vars
@@ -119,37 +95,72 @@ jobs:
                 "object": {}
               }
             }';
+          echo "declared data";
           var0="$(echo "${data}" | jq 'paths | length' )";
+          echo "declared var0";
           var1="$(echo "${data}" | jq 'paths' )";
+          echo "declared var1";
           var2="$(echo "${data}" | jq 'paths(scalars)' )";
+          echo "declared var2";
           var3="$(echo "${data}" | jq 'to_entries' )";
+          echo "declared var3";
+          var4="$(echo "${data}" | jq '.' )";
+          echo "declared var4";
           if [[ "${{ steps.manual-vars.outputs.var0 }}" != "${var0}" ]]; then 
             echo "var0:\n\texpected:'${var0}'\n\treceived:'${{ steps.test-use-jq-multi-line.outputs.var0 }}'"
             exit 1
-          fi;
-          if [[ "${{ steps.manual-vars.outputs.var1 }}" != "${var1}" ]]; then 
+          elif [[ "${{ steps.manual-vars.outputs.var1 }}" != "${var1}" ]]; then 
             echo "var1:\n\texpected:'${var1}'\n\treceived:'${{ steps.test-use-jq-multi-line.outputs.var1 }}'"
             exit 1
-          fi;
-          if [[ "${{ steps.manual-vars.outputs.var2 }}" != "${var2}" ]]; then 
+          elif [[ "${{ steps.manual-vars.outputs.var2 }}" != "${var2}" ]]; then 
             echo "var2:\n\texpected:'${var2}'\n\treceived:'${{ steps.test-use-jq-multi-line.outputs.var2 }}'"
             exit 1
-          fi;
-          if [[ "${{ steps.manual-vars.outputs.var3 }}" != "${var3}" ]]; then 
+          elif [[ "${{ steps.manual-vars.outputs.var3 }}" != "${var3}" ]]; then 
             echo "var3:\n\texpected:'${var3}'\n\treceived:'${{ steps.test-use-jq-multi-line.outputs.var3 }}'"
             exit 1
-          fi;
-          if [[ "${{ steps.manual-vars.outputs.var4 }}" != "${var4}" ]]; then 
+          elif [[ "${{ steps.manual-vars.outputs.var4 }}" != "${var4}" ]]; then 
             echo "var4:\n\texpected:'${var4}'\n\treceived:'${{ steps.test-use-jq-multi-line.outputs.var4 }}'"
             exit 1
           fi;
 
+  # confirm the docker environment we're creating for the action looks the way we expect it to look
+  job-test-env:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Commit info
+        run: >
+          echo "::set-output hash=var2::$(git rev-parse HEAD)";
+          echo "::set-output name=var2::$(git rev-parse --abbrev-ref HEAD)";
+
+      - name: Validate entrypoint
+        uses: jadutter/jq-action@test-workflows
+        id: valid-entrypoint
+        with:
+          cmd: >
+            if [ ! -f '/entrypoint.sh' ]; then
+              echo "forgot to add entrypoint.sh" >&2
+              exit 1
+            elif [ ! -x '/entrypoint.sh' ]; then
+              echo "forgot to make entrypoint.sh executable" >&2
+              exit 2
+            fi;
+            echo "entrypoint is valid"
+
+      - name: Get jq version
+        uses: jadutter/jq-action@test-workflows
+        id: version
+        with:
+          cmd: "jq --version"
+
       - name: Check version
         run: >
-          if [[ "$(
-            echo "${{ steps.version.outputs.stdout }}" |
-            egrep -o 'jq-.+' | 
-            wc -m )" -lt 4 ]]; then 
+          jq_version="$(echo "${{ steps.version.outputs.stdout }}" | egrep -o 'jq-.+' )";
+          if [[ "${#jq_version}" -gt 3 ]]; then 
+            echo "jq version is '${jq_version}'"
+          else
             echo "stdout:"
             echo "${{ steps.version.outputs.stdout }}"
             echo "stderr:"
@@ -158,6 +169,14 @@ jobs:
             echo "${{ steps.version.outputs.exit_code }}"
             exit 1
           fi
+
+  # confirm the action itself can be used as expected
+  job-test-action:
+    needs: [job-test-set-output, job-test-env]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
 
       - name: use jq
         uses: jadutter/jq-action@test-workflows

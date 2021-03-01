@@ -125,7 +125,7 @@ jobs:
                 ] | .[]
             '
 
-      - name: Check multiline usage
+      - name: Check multiline input and output usage
         run: >
           expect='{\n  "types": {\n    "null": null,\n    "boolean": false,\n    "number": 123,\n    "strings": {\n      "single": "lorem",\n      "cost": "$1.99",\n      "percentage": "99.99% complete",\n      "multiline": "Task:\n\t100% complete"\n    },\n    "array": [],\n    "object": {}\n  },\n  "array": [\n    null,\n    false,\n    123,\n    {\n      "single": "lorem",\n      "cost": "$1.99",\n      "percentage": "99.99% complete",\n      "multiline": "Task:\\n\\t100% complete"\n    },\n    [],\n    {}\n  ]\n}\nTask:\n\tt100% complete';
           if [[ "${{ steps.test-use-jq-multi-line-output.outputs.stdout }}" != "$expect" ]]; then 

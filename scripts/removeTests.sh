@@ -72,17 +72,21 @@ fi
 echo "Removing 'tests' directory from Dockerfile..."
 
 if [ "${debug}" = "true" ]; then
-    git checkout -- "${rootDir}/${file}"
-    rc="$?"
-    if [ "$rc" -gt 0 ]; then
-        stderr "Failed to reset ${rootDir}/${file}"
-        exit "$rc"
+    if [ -f "${rootDir}/${file}"]; then
+        git checkout -- "${rootDir}/${file}"
+        rc="$?"
+        if [ "$rc" -gt 0 ]; then
+            stderr "Failed to reset ${rootDir}/${file}"
+            exit "$rc"
+        fi
     fi
-    git checkout -- "${testsDir}"
-    rc="$?"
-    if [ "$rc" -gt 0 ]; then
-        stderr "Failed to reset ${testsDir}"
-        exit "$rc"
+    if [ -d "${testsDir}"]; then
+        git checkout -- "${testsDir}"
+        rc="$?"
+        if [ "$rc" -gt 0 ]; then
+            stderr "Failed to reset ${testsDir}"
+            exit "$rc"
+        fi
     fi
 fi
 

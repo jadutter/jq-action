@@ -102,8 +102,10 @@ prepareBranch(){
         fi
     fi
 
-
+    stashedChanges="false"
     stashChanges(){
+        stashName="jq-action-stash"
+
         echo "Stashing uncommited changes"
         "$(dirname "$0")/../scripts/stashFile.sh" \
             "${dryArg}" \
@@ -116,22 +118,36 @@ prepareBranch(){
             stderr "Failed to stash changes."
             exit "$rc"
         fi
+
+        stashIndex="$(
+            git stash list 2>/dev/null | \
+            egrep "${stashName}" | \
+            egrep -o 'stash@\{[0-9]+\}' | \
+            head -n 1 
+        )"
+        if [ "${#stashIndex}" -gt 0 ]; then
+            stashedChanges="true"
+        fi
     }
 
     restoreChanges(){
-        echo "Restoring uncommited changes"
-        "$(dirname "$0")/../scripts/stashFile.sh" \
-            "${dryArg}" \
-            "${debugArg}" \
-            "${verboseArg}" \
-            --undoStash 2>&1 | \
-            enclose
 
+        if [ "${stashedChanges}" = "false" ]; then
+            echo "No stash to restore"
+        else
+            echo "Restoring uncommited changes"
+            "$(dirname "$0")/../scripts/stashFile.sh" \
+                "${dryArg}" \
+                "${debugArg}" \
+                "${verboseArg}" \
+                --undoStash 2>&1 | \
+                enclose
 
-        rc="$?"
-        if [ "$rc" -gt 0 ]; then
-            stderr "Failed to restore stash."
-            exit "$rc"
+            rc="$?"
+            if [ "$rc" -gt 0 ]; then
+                stderr "Failed to restore stash."
+                exit "$rc"
+            fi
         fi
     }
 

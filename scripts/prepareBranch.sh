@@ -198,7 +198,8 @@ prepareBranch(){
 
     if [ "${isRelease}" = "true" ]; then    
         # remove tests directory 
-        removeTests --root "${rootDir}" --tests "${testsDir}" $@
+        "$(dirname "$0")/../scripts/removeTests.sh" \
+            --root "${rootDir}" --tests "${testsDir}" $@
         rc="$?"
         if [ "$rc" -gt 0 ]; then
             stderr "Failed to remove tests."

@@ -241,7 +241,10 @@ prepareBranch(){
         echo "Commiting changes..."
 
         output="$(
-            git add "${dockerfile}" "${testsDir}" "${workflowDir}" 2>&1
+            if [ -d "${testsDir}" ]; then 
+                git add "${testsDir}" 2>&1
+            fi 
+            git add "${dockerfile}" "${workflowDir}" 2>&1
             # commit changes 
             git commit -m "workflows updated." --no-verify 2>&1
         )"

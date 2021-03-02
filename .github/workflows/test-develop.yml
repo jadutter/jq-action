@@ -3,11 +3,11 @@ name: "GitHub-CI: development tests"
 on:
   push:
     branches:
-      - "!release"    
+      - "develop"
   pull_request:
     branches:
-      - "!release"    
-  # execute these tests on any branch that is not the 'release' branch, 
+      - "!release"
+  # execute these tests on any branch that is not the 'release' branch,
   # as the 'release' branch should not have the 'tests' directory
 jobs:
   test-action:
@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: validate tests exist
         uses: jadutter/jq-action@test-workflows
         id: valid-tests
@@ -60,7 +60,7 @@ jobs:
             echo "exit_code:"
             echo "${{ steps.test-4.outputs.exit_code }}"
             exit 1
-          fi  
+          fi
 
       - name: bash script from repo
         uses: jadutter/jq-action@test-workflows
@@ -79,7 +79,7 @@ jobs:
             echo "exit_code:"
             echo "${{ steps.test-5.outputs.exit_code }}"
             exit 1
-          fi  
+          fi
 
       - name: jq-module from repo
         uses: jadutter/jq-action@test-workflows
@@ -98,4 +98,4 @@ jobs:
             echo "exit_code:"
             echo "${{ steps.test-6.outputs.exit_code }}"
             exit 1
-          fi 
+          fi

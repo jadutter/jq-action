@@ -1,7 +1,10 @@
 name: "GitHub-CI: valid image"
 
 on:
-  push: {}
+  push:
+    branches:
+      - develop
+      - release
   pull_request: {}
   # execute these tests on every branch, to confirm the branch's HEAD can be used as a github action
 env:

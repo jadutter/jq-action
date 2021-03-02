@@ -24,10 +24,22 @@ the standard error from the bash command
 
 ## Example usage
 
-uses: actions/jq@v1
+uses: actions/jq-action@v1
 with:
-  cmd: |
+  cmd: >
     echo '{
         foo: "bar"
     }' | 
     jq '.foo'
+
+# Developing
+jq-action uses husky to manage and setup git hooks. 
+1) `npm i`
+1) `npm run postinstall`
+1) `npm run build`
+1) `npm run test`
+1) `INPUT_CMD="jq -nc '{foo:\"bar\"}|keys' " npm run shell`
+
+
+
+

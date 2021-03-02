@@ -1,0 +1,21 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# # 1) Ref of previous HEAD
+# # 2) Ref of new HEAD
+# # 3) Whether this is a file checkout (0) or branch checkout (1)
+# echo 'Checkout type: '$3
+# echo '    prev HEAD: '`git name-rev --name-only $1`                       
+# echo '     new HEAD: '`git name-rev --name-only $2`
+
+# if [[ "$3" == "0" ]]; then 
+# 	echo "Not new branch (Probably)."
+# 	exit; 
+# fi
+# if [[ "$1" == "$2" ]]; then 
+#   echo "New branch created. (Probably)."
+# else
+# 	echo "welcome back"
+# fi
+
+

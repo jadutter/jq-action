@@ -1,0 +1,13 @@
+#!/bin/sh
+[ -n "$CI" ] && exit 0
+
+# source 'husky.sh'
+. "$(dirname "$0")/_/husky.sh"
+
+
+. "$(dirname "$0")/../scripts/buildImage.sh" $@
+
+echo ""
+
+. "$(dirname "$0")/../scripts/testBuild.sh" $@
+

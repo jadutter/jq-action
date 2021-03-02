@@ -3,8 +3,8 @@
 . "$(dirname "$0")/../scripts/common.sh"
 
 image_name="jq-action"
-cmd="jq -nc '{foo:\"bar\"}|keys' " 
-expectation="\[\"foo\"\]"
+cmd="jq -n '{foo:\"bar\"}|keys' " 
+expectation="[%0A\t\"foo\"%0A]"
 test_result=""
 pass=""
 

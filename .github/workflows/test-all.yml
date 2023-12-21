@@ -99,22 +99,22 @@ jobs:
           sample_var_2="$( echo -e "${{ env.sample_var_2 }}" | sed -E 's/"/\\"/g' )";
           sample_var_3="$( echo -e "${{ env.sample_var_3 }}" | sed -E 's/"/\\"/g' )";
 
-          esc_sample_var_0="$( echo "${sample_var_0}" | jq -sRr @uri || echo "JQ URI ENCODE OUTPUT FAILED")";
+          esc_sample_var_0="$( printf "${sample_var_0}" | jq -sRr @uri || echo "JQ URI ENCODE OUTPUT FAILED")";
           echo "    sample_var_0:'${sample_var_0}'";
           echo "esc_sample_var_0:'${esc_sample_var_0}'";
           echo "sample_var_0=${esc_sample_var_0}" >> $GITHUB_OUTPUT;
 
-          esc_sample_var_1="$( echo "${sample_var_1}" | jq -sRr @uri || echo "JQ URI ENCODE OUTPUT FAILED")";
+          esc_sample_var_1="$( printf "${sample_var_1}" | jq -sRr @uri || echo "JQ URI ENCODE OUTPUT FAILED")";
           echo "    sample_var_1:'${sample_var_1}'";
           echo "esc_sample_var_1:'${esc_sample_var_1}'";
           echo "sample_var_1=${esc_sample_var_1}" >> $GITHUB_OUTPUT;
 
-          esc_sample_var_2="$( echo "${sample_var_2}" | jq -sRr @uri || echo "JQ URI ENCODE OUTPUT FAILED")";
+          esc_sample_var_2="$( printf "${sample_var_2}" | jq -sRr @uri || echo "JQ URI ENCODE OUTPUT FAILED")";
           echo "    sample_var_2:'${sample_var_2}'";
           echo "esc_sample_var_2:'${esc_sample_var_2}'";
           echo "sample_var_2=${esc_sample_var_2}" >> $GITHUB_OUTPUT;
 
-          esc_sample_var_3="$( echo "${sample_var_3}" | jq -sRr @uri || echo "JQ URI ENCODE OUTPUT FAILED")";
+          esc_sample_var_3="$( printf "${sample_var_3}" | jq -sRr @uri || echo "JQ URI ENCODE OUTPUT FAILED")";
           echo "    sample_var_3:'${sample_var_3}'";
           echo "esc_sample_var_3:'${esc_sample_var_3}'";
           echo "sample_var_3=${esc_sample_var_3}" >> $GITHUB_OUTPUT;

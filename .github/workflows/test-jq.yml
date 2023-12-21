@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2
         
       - name: Get jq version
-        uses: jadutter/jq-action@main
+        uses: jadutter/jq-action@develop
         id: version
         with:
           cmd: 'jq --version'
@@ -22,13 +22,13 @@ jobs:
         run: 'echo "jq version is ${{ steps.version.outputs.stdout }}"'
 
       - name: use jq
-        uses: jadutter/jq-action@main
+        uses: jadutter/jq-action@develop
         id: test-1
         with:
           cmd: 'jq -n "{foo:\"bar\"} | .foo" '
 
       - name: muliline command
-        uses: jadutter/jq-action@main
+        uses: jadutter/jq-action@develop
         id: test-2
         with:
           # use YAML folded style 
@@ -37,21 +37,21 @@ jobs:
             jq '.foo == "bar"'
       
       - name: json file from repo
-        uses: jadutter/jq-action@main
+        uses: jadutter/jq-action@develop
         id: test-3
         with:
           cmd: >
             jq 'keys' ./tests/sample.json
 
       - name: bash script from repo
-        uses: jadutter/jq-action@main
+        uses: jadutter/jq-action@develop
         id: test-4
         with:
           cmd: >
             ./tests/test_bash.sh
 
       - name: jq-module from repo
-        uses: jadutter/jq-action@main
+        uses: jadutter/jq-action@develop
         id: test-5
         with:
           cmd: >

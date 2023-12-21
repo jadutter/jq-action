@@ -1,4 +1,4 @@
-name: "GitHub-CI: valid image"
+name: 'GitHub-CI: valid image'
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
   # confirm we know how to properly escape the data that goes into set-output variables
   job-test-workflow-syntax:
     env:
-      sample_var_0: "9"
+      sample_var_0: '9'
       sample_var_1: >
         [
           "types",
@@ -188,7 +188,7 @@ jobs:
           echo "::set-output name=name::$(git rev-parse --abbrev-ref HEAD)";
 
       - name: Validate entrypoint
-        uses: jadutter/jq-action@develop
+        uses: jadutter/jq-action@hotfix/patch-action
         id: valid-entrypoint
         with:
           cmd: >
@@ -202,10 +202,10 @@ jobs:
             echo "entrypoint is valid"
 
       - name: Get jq version
-        uses: jadutter/jq-action@develop
+        uses: jadutter/jq-action@hotfix/patch-action
         id: version
         with:
-          cmd: "jq --version"
+          cmd: 'jq --version'
 
       - name: Check version
         run: >

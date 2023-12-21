@@ -98,38 +98,26 @@ jobs:
           sample_var_3="${{ env.sample_var_3 }}"
 
           echo "declared variables";
-
-          esc_sample_var_0="$( echo "${sample_var_0}" || echo "SED COMMAND FAILED")";
-          esc_sample_var_0="${esc_sample_var_0//'%'/'%25'}";
-          esc_sample_var_0="${esc_sample_var_0//$'\n'/'%0A'}";
-          esc_sample_var_0="${esc_sample_var_0//$'\r'/'%0D'}";
-          echo "    sample_var_0:'${sample_var_0}'";
-          echo "esc_sample_var_0:'${esc_sample_var_0}'";
-          echo "sample_var_0=${esc_sample_var_0}" >> $GITHUB_OUTPUT;
-
-          esc_sample_var_1="$( echo "${sample_var_1}" || echo "SED COMMAND FAILED")";
-          esc_sample_var_1="${esc_sample_var_1//'%'/'%25'}";
-          esc_sample_var_1="${esc_sample_var_1//$'\n'/'%0A'}";
-          esc_sample_var_1="${esc_sample_var_1//$'\r'/'%0D'}";
-          echo "    sample_var_1:'${sample_var_1}'";
-          echo "esc_sample_var_1:'${esc_sample_var_1}'";
-          echo "sample_var_1=${esc_sample_var_1}" >> $GITHUB_OUTPUT;
-
-          esc_sample_var_2="$( echo "${sample_var_2}" || echo "SED COMMAND FAILED")";
-          esc_sample_var_2="${esc_sample_var_2//'%'/'%25'}";
-          esc_sample_var_2="${esc_sample_var_2//$'\n'/'%0A'}";
-          esc_sample_var_2="${esc_sample_var_2//$'\r'/'%0D'}";
-          echo "    sample_var_2:'${sample_var_2}'";
-          echo "esc_sample_var_2:'${esc_sample_var_2}'";
-          echo "sample_var_2=${esc_sample_var_2}" >> $GITHUB_OUTPUT;
-
-          esc_sample_var_3="$( echo "${sample_var_3}" || echo "SED COMMAND FAILED")";
-          esc_sample_var_3="${esc_sample_var_3//'%'/'%25'}";
-          esc_sample_var_3="${esc_sample_var_3//$'\n'/'%0A'}";
-          esc_sample_var_3="${esc_sample_var_3//$'\r'/'%0D'}";
-          echo "    sample_var_3:'${sample_var_3}'";
-          echo "esc_sample_var_3:'${esc_sample_var_3}'";
-          echo "sample_var_3=${esc_sample_var_3}" >> $GITHUB_OUTPUT;
+          {
+            echo 'sample_var_0<<EOF'
+            echo "${sample_var_0}"
+            echo EOF
+          } >> $GITHUB_OUTPUT;
+          {
+            echo 'sample_var_1<<EOF'
+            echo "${sample_var_1}"
+            echo EOF
+          } >> $GITHUB_OUTPUT;
+          {
+            echo 'sample_var_2<<EOF'
+            echo "${sample_var_2}"
+            echo EOF
+          } >> $GITHUB_OUTPUT;
+          {
+            echo 'sample_var_3<<EOF'
+            echo "${sample_var_3}"
+            echo EOF
+          } >> $GITHUB_OUTPUT;
 
       - name: Check manual set variables
         run: >
@@ -143,26 +131,10 @@ jobs:
           echo -e "${{ steps.manual-vars.outputs.sample_var_2 }}" >/tmp/manual_sample_var_2.txt;
           echo -e "${{ steps.manual-vars.outputs.sample_var_3 }}" >/tmp/manual_sample_var_3.txt;
 
-          if [[ "$( cat /tmp/sample_var_0.txt )" != "$( cat /tmp/manual_sample_var_0.txt )" ]]; then
-            printf "Invalid sample_var_0:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_0.txt)" "$(cat /tmp/manual_sample_var_0.txt)"
-            git diff --no-index /tmp/sample_var_0.txt /tmp/manual_sample_var_0.txt;
-            # exit 1
-          fi;
-          if [[ "$( cat /tmp/sample_var_1.txt )" != "$( cat /tmp/manual_sample_var_1.txt )" ]]; then
-            printf "Invalid sample_var_1:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_1.txt)" "$(cat /tmp/manual_sample_var_1.txt)"
-            git diff --no-index /tmp/sample_var_1.txt /tmp/manual_sample_var_1.txt;
-            # exit 1
-          fi;
-          if [[ "$( cat /tmp/sample_var_2.txt )" != "$( cat /tmp/manual_sample_var_2.txt )" ]]; then
-            printf "Invalid sample_var_2:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_2.txt)" "$(cat /tmp/manual_sample_var_2.txt)"
-            git diff --no-index /tmp/sample_var_2.txt /tmp/manual_sample_var_2.txt;
-            # exit 1
-          fi;
-          if [[ "$( cat /tmp/sample_var_3.txt )" != "$( cat /tmp/manual_sample_var_3.txt )" ]]; then
-            printf "Invalid sample_var_3:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_3.txt)" "$(cat /tmp/manual_sample_var_3.txt)"
-            git diff --no-index /tmp/sample_var_3.txt /tmp/manual_sample_var_3.txt;
-            # exit 1
-          fi;
+          git diff --no-index /tmp/sample_var_0.txt /tmp/manual_sample_var_0.txt;
+          git diff --no-index /tmp/sample_var_1.txt /tmp/manual_sample_var_1.txt;
+          git diff --no-index /tmp/sample_var_2.txt /tmp/manual_sample_var_2.txt;
+          git diff --no-index /tmp/sample_var_3.txt /tmp/manual_sample_var_3.txt;
 
   # confirm the docker environment we're creating for the action looks the way we expect it to look
   job-test-env:

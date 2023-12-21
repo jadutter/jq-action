@@ -88,7 +88,6 @@ jobs:
         }
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
       - name: Manually set variables
         id: manual-vars
         run: >
@@ -119,7 +118,7 @@ jobs:
             echo EOF
           } >> $GITHUB_OUTPUT;
 
-      - name: Check manual set variables
+      - name: Check variables
         run: >
           echo -e "${{ env.sample_var_0 }}" >/tmp/sample_var_0.txt;
           echo -e "${{ env.sample_var_1 }}" >/tmp/sample_var_1.txt;
@@ -265,12 +264,9 @@ jobs:
 
       - name: Check multiline input and output usage
         run: >
-          expect="$( echo "{\n  \"types\": {\n    \"null\": null,\n    \"boolean\": false,\n    \"number\": 123,\n    \"strings\": {\n      \"single\": \"lorem\",\n      \"cost\": \"\$1.99\",\n      \"percentage\": \"99.99% complete\",\n      \"multiline\": \"Task:\n\t100% complete\"\n    },\n    \"array\": [],\n    \"object\": {}\n  },\n  \"array\": [\n    null,\n    false,\n    123,\n    {\n      \"single\": \"lorem\",\n      \"cost\": \"\$1.99\",\n      \"percentage\": \"99.99% complete\",\n      \"multiline\": \"Task:\\n\\t100% complete\"\n    },\n    [],\n    {}\n  ]\n}\nTask:\n\t100% complete" )";
-          if [[ "$( echo -e "${{ steps.test-use-jq-multi-input-output.outputs.stdout }}" )" != "$( echo -e "${expect}" )" ]]; then 
-            printf "Unexpected output:\n    expected:'%s'\n    received: '%s'\n" "${expect}" "${{ steps.test-use-jq-multi-input-output.outputs.stdout }}"
-            diff <(echo -e "${expect}" ) <(echo -e "${{ steps.test-use-jq-multi-input-output.outputs.stdout }}" )
-            exit 1
-          fi
+          echo -e "$( echo "{\n  \"types\": {\n    \"null\": null,\n    \"boolean\": false,\n    \"number\": 123,\n    \"strings\": {\n      \"single\": \"lorem\",\n      \"cost\": \"\$1.99\",\n      \"percentage\": \"99.99% complete\",\n      \"multiline\": \"Task:\n\t100% complete\"\n    },\n    \"array\": [],\n    \"object\": {}\n  },\n  \"array\": [\n    null,\n    false,\n    123,\n    {\n      \"single\": \"lorem\",\n      \"cost\": \"\$1.99\",\n      \"percentage\": \"99.99% complete\",\n      \"multiline\": \"Task:\\n\\t100% complete\"\n    },\n    [],\n    {}\n  ]\n}\nTask:\n\t100% complete" )" >/tmp/expected.txt
+          echo -e "${{ steps.test-use-jq-multi-input-output.outputs.stdout }}" >/tmp/received.txt
+          git diff --no-index /tmp/expected.txt /tmp/received.txt;
 
       - name: Check manual variables
         uses: jadutter/jq-action@hotfix/patch-action
@@ -278,65 +274,53 @@ jobs:
         with:
           cmd: >
             echo "declared data='${data}'";
-            sed_command="$( 
-              echo -e "
-                  :nextLine;
-                  # if not the end of the file
-                  \$!{
-                    # add the next line to the pattern space
-                    N;
-                    # grab another line
-                    b nextLine;
-                  }
-                  # escape backslash characters
-                  s/\\\\\\/\\\\\\\\\\\\\\/g;
 
-                  # escape percentage sign
-                  s/%/%25/g;
-
-                  # esape newline characters
-                  s/\\\n/%0A/g;
-                  s/\\\r/%0D/g;
-
-                  # escape double quotes
-                  s/\\\"/\\\\\\\\\\\"/g;
-
-                  # escape dollar sign
-                  s/\\\\\$/\\\\\\\\\$/g;
-                  ";
-                )";
-            echo "declared sed_command";
             sample_data="$( echo -e "${{ env.sample_data }}" | sed -E 's/"/\\"/g' )";
             echo "declared sample_data";
 
             var_0="$( jq -n '${sample_data}' | jq 'paths | length' )";
             echo "declared var_0='${var_0}'";
-            var_0="$( echo -e ${var_0} | sed -E "${sed_command}" || echo "SED COMMAND FAILED" )";
-            echo "var_0=${var_0}" >> $GITHUB_OUTPUT;
+            {
+              echo 'var_0<<EOF'
+              echo "${var_0}" | sed -E 's/"/\\"/g'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT;
             echo "set var_0";
 
             var_1="$( jq -n '${sample_data}' | jq 'paths' )";
             echo "declared var_1='${var_1}'";
-            var_1="$( echo -e ${var_1} | sed -E "${sed_command}" || echo "SED COMMAND FAILED" )";
-            echo "var_1=${var_1}" >> $GITHUB_OUTPUT;
+            {
+              echo 'var_1<<EOF'
+              echo "${var_1}" | sed -E 's/"/\\"/g'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT;
             echo "set var_1";
 
             var_2="$( jq -n '${sample_data}' | jq 'paths(scalars)' )";
             echo "declared var_2='${var_2}'";
-            var_2="$( echo -e ${var_2} | sed -E "${sed_command}" || echo "SED COMMAND FAILED" )";
-            echo "var_2=${var_2}" >> $GITHUB_OUTPUT;
+            {
+              echo 'var_2<<EOF'
+              echo "${var_2}" | sed -E 's/"/\\"/g'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT;
             echo "set var_2";
 
             var_3="$( jq -n '${sample_data}' | jq 'to_entries' )";
             echo "declared var_3='${var_3}'";
-            var_3="$( echo -e ${var_3} | sed -E "${sed_command}" || echo "SED COMMAND FAILED" )";
-            echo "var_3=${var_3}" >> $GITHUB_OUTPUT;
+            {
+              echo 'var_3<<EOF'
+              echo "${var_3}" | sed -E 's/"/\\"/g'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT;
             echo "set var_3";
 
             var_4="$( jq -n '${sample_data}' | jq '.' )";
             echo "declared var_4='${var_4}'";
-            var_4="$( echo -e ${var_4} | sed -E "${sed_command}" || echo "SED COMMAND FAILED" )";
-            echo "var_4=${var_4}" >> $GITHUB_OUTPUT;
+            {
+              echo 'var_4<<EOF'
+              echo "${var_4}" | sed -E 's/"/\\"/g'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT;
             echo "set var_4";
 
       - name: Show manual variables
@@ -346,40 +330,28 @@ jobs:
             sample_data="$( echo -e "${{ env.sample_data }}" | sed -E 's/"/\\"/g' )";
             echo "declared sample_data";
 
-            var_0="$( jq -n "${sample_data}" | jq 'paths | length' )";
-            echo "declared var_0='${var_0}'";
+            echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_0.txt
+            jq -n "${sample_data}" | jq 'paths | length' >/tmp/var_0.txt
+            echo "declared var_0='$(cat /tmp/var_0.txt)'";
 
-            var_1="$( jq -n "${sample_data}" | jq 'paths' )";
-            echo "declared var_1='${var_1}'";
+            echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_1.txt
+            jq -n "${sample_data}" | jq 'paths' >/tmp/var_1.txt
+            echo "declared var_1='$(cat /tmp/var_1.txt)'";
 
-            var_2="$( jq -n "${sample_data}" | jq 'paths(scalars)' )";
-            echo "declared var_2='${var_2}'";
+            echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_2.txt
+            jq -n "${sample_data}" | jq 'paths(scalars)' >/tmp/var_2.txt
+            echo "declared var_2='$(cat /tmp/var_2.txt)'";
 
-            var_3="$( jq -n "${sample_data}" | jq 'to_entries' )";
-            echo "declared var_3='${var_3}'";
+            echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_3.txt
+            jq -n "${sample_data}" | jq 'to_entries' >/tmp/var_3.txt
+            echo "declared var_3='$(cat /tmp/var_3.txt)'";
 
-            var_4="$( jq -n "${sample_data}" | jq '.' )";
-            echo "declared var_4='${var_4}'";
+            echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_4.txt
+            jq -n "${sample_data}" | jq '.' >/tmp/var_4.txt
+            echo "declared var_4='$(cat /tmp/var_4.txt)'";
 
-
-            if [[ "$( echo "${{ steps.manual-vars-jq.outputs.var_0 }}" )" != "$( echo "${var_0}" )" ]]; then 
-              printf "Invalid var_0:\n    expected:'%s'\n    received: '%s'\n" "${var_0}" "${{ steps.manual-vars-jq.outputs.var_0 }}"
-              diff <(echo -e "${var_0}") <(echo -e "${{ steps.manual-vars-jq.outputs.var_0 }}" )
-              exit 1
-            elif [[ "$( echo "${{ steps.manual-vars-jq.outputs.var_1 }}" )" != "$( echo "${var_1}" )" ]]; then 
-              printf "Invalid var_1:\n    expected:'%s'\n    received: '%s'\n" "${var_1}" "${{ steps.manual-vars-jq.outputs.var_1 }}"
-              diff <(echo -e "${var_1}") <(echo -e "${{ steps.manual-vars-jq.outputs.var_1 }}" )
-              exit 1
-            elif [[ "$( echo "${{ steps.manual-vars-jq.outputs.var_2 }}" )" != "$( echo "${var_2}" )" ]]; then 
-              printf "Invalid var_2:\n    expected:'%s'\n    received: '%s'\n" "${var_2}" "${{ steps.manual-vars-jq.outputs.var_2 }}"
-              diff <(echo -e "${var_2}") <(echo -e "${{ steps.manual-vars-jq.outputs.var_2 }}" )
-              exit 1
-            elif [[ "$( echo "${{ steps.manual-vars-jq.outputs.var_3 }}" )" != "$( echo "${var_3}" )" ]]; then 
-              printf "Invalid var_3:\n    expected:'%s'\n    received: '%s'\n" "${var_3}" "${{ steps.manual-vars-jq.outputs.var_3 }}"
-              diff <(echo -e "${var_3}") <(echo -e "${{ steps.manual-vars-jq.outputs.var_3 }}" )
-              exit 1
-            elif [[ "$( echo "${{ steps.manual-vars-jq.outputs.var_4 }}" )" != "$( echo "${var_4}" )" ]]; then 
-              printf "Invalid var_4:\n    expected:'%s'\n    received: '%s'\n" "${var_4}" "${{ steps.manual-vars-jq.outputs.var_4 }}"
-              diff <(echo -e "${var_4}") <(echo -e "${{ steps.manual-vars-jq.outputs.var_4 }}" )
-              exit 1
-            fi;
+            git diff --no-index /tmp/expected_var_0.txt /tmp/var_0.txt
+            git diff --no-index /tmp/expected_var_1.txt /tmp/var_1.txt
+            git diff --no-index /tmp/expected_var_2.txt /tmp/var_2.txt
+            git diff --no-index /tmp/expected_var_3.txt /tmp/var_3.txt
+            git diff --no-index /tmp/expected_var_4.txt /tmp/var_4.txt

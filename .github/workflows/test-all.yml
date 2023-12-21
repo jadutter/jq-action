@@ -100,22 +100,22 @@ jobs:
           echo "declared variables";
           {
             echo 'sample_var_0<<EOF'
-            echo "${sample_var_0}"
+            echo "${sample_var_0}" | sed -E 's/"/\\"/g'
             echo EOF
           } >> $GITHUB_OUTPUT;
           {
             echo 'sample_var_1<<EOF'
-            echo "${sample_var_1}"
+            echo "${sample_var_1}" | sed -E 's/"/\\"/g'
             echo EOF
           } >> $GITHUB_OUTPUT;
           {
             echo 'sample_var_2<<EOF'
-            echo "${sample_var_2}"
+            echo "${sample_var_2}" | sed -E 's/"/\\"/g'
             echo EOF
           } >> $GITHUB_OUTPUT;
           {
             echo 'sample_var_3<<EOF'
-            echo "${sample_var_3}"
+            echo "${sample_var_3}" | sed -E 's/"/\\"/g'
             echo EOF
           } >> $GITHUB_OUTPUT;
 

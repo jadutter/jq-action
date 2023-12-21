@@ -273,12 +273,10 @@ jobs:
         id: manual-vars-jq
         with:
           cmd: >
-            echo "declared data='${data}'";
-
             sample_data="$( echo -e "${{ env.sample_data }}" | sed -E 's/"/\\"/g' )";
-            echo "declared sample_data";
+            echo "declared sample_data='${sample_data}'";
 
-            var_0="$( jq -n '${sample_data}' | jq 'paths | length' )";
+            var_0="$( jq -n "${sample_data}" | jq 'paths | length' )";
             echo "declared var_0='${var_0}'";
             {
               echo 'var_0<<EOF'
@@ -287,7 +285,7 @@ jobs:
             } >> $GITHUB_OUTPUT;
             echo "set var_0";
 
-            var_1="$( jq -n '${sample_data}' | jq 'paths' )";
+            var_1="$( jq -n "${sample_data}" | jq 'paths' )";
             echo "declared var_1='${var_1}'";
             {
               echo 'var_1<<EOF'
@@ -296,7 +294,7 @@ jobs:
             } >> $GITHUB_OUTPUT;
             echo "set var_1";
 
-            var_2="$( jq -n '${sample_data}' | jq 'paths(scalars)' )";
+            var_2="$( jq -n "${sample_data}" | jq 'paths(scalars)' )";
             echo "declared var_2='${var_2}'";
             {
               echo 'var_2<<EOF'
@@ -305,7 +303,7 @@ jobs:
             } >> $GITHUB_OUTPUT;
             echo "set var_2";
 
-            var_3="$( jq -n '${sample_data}' | jq 'to_entries' )";
+            var_3="$( jq -n "${sample_data}" | jq 'to_entries' )";
             echo "declared var_3='${var_3}'";
             {
               echo 'var_3<<EOF'
@@ -314,7 +312,7 @@ jobs:
             } >> $GITHUB_OUTPUT;
             echo "set var_3";
 
-            var_4="$( jq -n '${sample_data}' | jq '.' )";
+            var_4="$( jq -n "${sample_data}" | jq '.' )";
             echo "declared var_4='${var_4}'";
             {
               echo 'var_4<<EOF'

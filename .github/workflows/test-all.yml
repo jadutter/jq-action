@@ -99,22 +99,22 @@ jobs:
 
           echo "declared variables";
 
-          esc_sample_var_0="$( echo "${sample_var_0}" | ./encode.sh || echo "SED COMMAND FAILED")";
+          esc_sample_var_0="$( echo "${sample_var_0}" || echo "SED COMMAND FAILED")";
           echo "    sample_var_0:'${sample_var_0}'";
           echo "esc_sample_var_0:'${esc_sample_var_0}'";
           echo "sample_var_0=${esc_sample_var_0}" >> $GITHUB_OUTPUT;
 
-          esc_sample_var_1="$( echo "${sample_var_1}" | ./encode.sh || echo "SED COMMAND FAILED")";
+          esc_sample_var_1="$( echo "${sample_var_1}" || echo "SED COMMAND FAILED")";
           echo "    sample_var_1:'${sample_var_1}'";
           echo "esc_sample_var_1:'${esc_sample_var_1}'";
           echo "sample_var_1=${esc_sample_var_1}" >> $GITHUB_OUTPUT;
 
-          esc_sample_var_2="$( echo "${sample_var_2}" | ./encode.sh || echo "SED COMMAND FAILED")";
+          esc_sample_var_2="$( echo "${sample_var_2}" || echo "SED COMMAND FAILED")";
           echo "    sample_var_2:'${sample_var_2}'";
           echo "esc_sample_var_2:'${esc_sample_var_2}'";
           echo "sample_var_2=${esc_sample_var_2}" >> $GITHUB_OUTPUT;
 
-          esc_sample_var_3="$( echo "${sample_var_3}" | ./encode.sh || echo "SED COMMAND FAILED")";
+          esc_sample_var_3="$( echo "${sample_var_3}" || echo "SED COMMAND FAILED")";
           echo "    sample_var_3:'${sample_var_3}'";
           echo "esc_sample_var_3:'${esc_sample_var_3}'";
           echo "sample_var_3=${esc_sample_var_3}" >> $GITHUB_OUTPUT;

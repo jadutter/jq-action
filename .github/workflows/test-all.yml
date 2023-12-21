@@ -145,22 +145,22 @@ jobs:
 
           if [[ "$( cat /tmp/sample_var_0.txt )" != "$( cat /tmp/manual_sample_var_0.txt )" ]]; then
             printf "Invalid sample_var_0:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_0.txt)" "$(cat /tmp/manual_sample_var_0.txt)"
-            git diff --no-index /tmp/sample_var_0.txt; /tmp/manual_sample_var_0.txt;
+            git diff --no-index /tmp/sample_var_0.txt /tmp/manual_sample_var_0.txt;
             # exit 1
           fi;
           if [[ "$( cat /tmp/sample_var_1.txt )" != "$( cat /tmp/manual_sample_var_1.txt )" ]]; then
             printf "Invalid sample_var_1:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_1.txt)" "$(cat /tmp/manual_sample_var_1.txt)"
-            git diff --no-index /tmp/sample_var_1.txt; /tmp/manual_sample_var_1.txt;
+            git diff --no-index /tmp/sample_var_1.txt /tmp/manual_sample_var_1.txt;
             # exit 1
           fi;
           if [[ "$( cat /tmp/sample_var_2.txt )" != "$( cat /tmp/manual_sample_var_2.txt )" ]]; then
             printf "Invalid sample_var_2:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_2.txt)" "$(cat /tmp/manual_sample_var_2.txt)"
-            git diff --no-index /tmp/sample_var_2.txt; /tmp/manual_sample_var_2.txt;
+            git diff --no-index /tmp/sample_var_2.txt /tmp/manual_sample_var_2.txt;
             # exit 1
           fi;
           if [[ "$( cat /tmp/sample_var_3.txt )" != "$( cat /tmp/manual_sample_var_3.txt )" ]]; then
             printf "Invalid sample_var_3:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_3.txt)" "$(cat /tmp/manual_sample_var_3.txt)"
-            git diff --no-index /tmp/sample_var_3.txt; /tmp/manual_sample_var_3.txt;
+            git diff --no-index /tmp/sample_var_3.txt /tmp/manual_sample_var_3.txt;
             # exit 1
           fi;
 

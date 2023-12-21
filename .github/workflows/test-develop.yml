@@ -1,12 +1,12 @@
-name: "GitHub-CI: development tests"
+name: 'GitHub-CI: development tests'
 
 on:
   push:
     branches:
-      - "develop"
+      - 'develop'
   pull_request:
     branches:
-      - "!release"
+      - '!release'
   # execute these tests on any branch that is not the 'release' branch,
   # as the 'release' branch should not have the 'tests' directory
 jobs:
@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: validate tests exist
-        uses: jadutter/jq-action@develop
+        uses: jadutter/jq-action@hotfix/patch-action
         id: valid-tests
         with:
           cmd: >
@@ -44,7 +44,7 @@ jobs:
             echo "tests are ready"
 
       - name: json file from repo
-        uses: jadutter/jq-action@develop
+        uses: jadutter/jq-action@hotfix/patch-action
         id: test-4
         with:
           cmd: >
@@ -63,7 +63,7 @@ jobs:
           fi
 
       - name: bash script from repo
-        uses: jadutter/jq-action@develop
+        uses: jadutter/jq-action@hotfix/patch-action
         id: test-5
         with:
           cmd: >
@@ -82,7 +82,7 @@ jobs:
           fi
 
       - name: jq-module from repo
-        uses: jadutter/jq-action@develop
+        uses: jadutter/jq-action@hotfix/patch-action
         id: test-6
         with:
           cmd: >

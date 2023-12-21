@@ -87,90 +87,95 @@ jobs:
             {}
           ]
         }
-        Task:
-          100% complete
+        Task:100% complete
     runs-on: ubuntu-latest
     steps:
       - name: Manually set variables
         id: manual-vars
         run: >
-          sample_var_0="$( echo -e "${{ env.sample_var_0 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_1="$( echo -e "${{ env.sample_var_1 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_2="$( echo -e "${{ env.sample_var_2 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_3="$( echo -e "${{ env.sample_var_3 }}" | sed -E 's/"/\\"/g' )";
-          sed_command="$(
-            echo -e "
-                :nextLine;
-                # if not the end of the file
-                \$!{
-                  # add the next line to the pattern space
-                  N;
-                  # grab another line
-                  b nextLine;
-                }
-                # escape backslash characters
-                s/\\\\\\/\\\\\\\\\\\\\\/g;
+          sample_var_0="${{ env.sample_var_0 }}"
+          sample_var_1="${{ env.sample_var_1 }}"
+          sample_var_2="${{ env.sample_var_2 }}"
+          sample_var_3="${{ env.sample_var_3 }}"
+          function encode(){
+            sed -E '
+              :nextLine;
+              # if not the end of the file
+              $!{
+                # add the next line to the pattern space
+                N;
+                # grab another line
+                b nextLine;
+              }
+              # escape backslash characters
+              s/\\/\\\\/g;
 
-                # escape percentage sign
-                s/%/%25/g;
+              # escape percentage sign
+              s/%/%25/g;
 
-                # esape newline characters
-                s/\\\n/%0A/g;
-                s/\\\r/%0D/g;
+              # esape newline characters
+              s/\n/%0A/g;
+              s/\r/%0D/g;
 
-                # escape double quotes
-                s/\\\"/\\\\\\\\\\\"/g;
+              # escape double quotes
+              s/\"/\\\"/g;
 
-                # escape dollar sign
-                s/\\\\\$/\\\\\\\\\$/g;
-                ";
-              )";
-          echo "declared sed_command";
+              # escape dollar sign
+              s/\$/\\$/g;
+            '
+          }
+          echo "declared variables";
 
-          esc_sample_var_0="$( echo "${sample_var_0}" | sed -E "${sed_command}" || echo "SED COMMAND FAILED")";
+          esc_sample_var_0="$( echo "${sample_var_0}" | encode || echo "SED COMMAND FAILED")";
           echo "    sample_var_0:'${sample_var_0}'";
           echo "esc_sample_var_0:'${esc_sample_var_0}'";
           echo "sample_var_0=${esc_sample_var_0}" >> $GITHUB_OUTPUT;
 
-          esc_sample_var_1="$( echo "${sample_var_1}" | sed -E "${sed_command}" || echo "SED COMMAND FAILED")";
+          esc_sample_var_1="$( echo "${sample_var_1}" | encode || echo "SED COMMAND FAILED")";
           echo "    sample_var_1:'${sample_var_1}'";
           echo "esc_sample_var_1:'${esc_sample_var_1}'";
           echo "sample_var_1=${esc_sample_var_1}" >> $GITHUB_OUTPUT;
 
-          esc_sample_var_2="$( echo "${sample_var_2}" | sed -E "${sed_command}" || echo "SED COMMAND FAILED")";
+          esc_sample_var_2="$( echo "${sample_var_2}" | encode || echo "SED COMMAND FAILED")";
           echo "    sample_var_2:'${sample_var_2}'";
           echo "esc_sample_var_2:'${esc_sample_var_2}'";
           echo "sample_var_2=${esc_sample_var_2}" >> $GITHUB_OUTPUT;
 
-          esc_sample_var_3="$( echo "${sample_var_3}" | sed -E "${sed_command}" || echo "SED COMMAND FAILED")";
+          esc_sample_var_3="$( echo "${sample_var_3}" | encode || echo "SED COMMAND FAILED")";
           echo "    sample_var_3:'${sample_var_3}'";
           echo "esc_sample_var_3:'${esc_sample_var_3}'";
           echo "sample_var_3=${esc_sample_var_3}" >> $GITHUB_OUTPUT;
 
       - name: Check manual set variables
         run: >
-          sample_var_0="$( echo -e "${{ env.sample_var_0 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_1="$( echo -e "${{ env.sample_var_1 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_2="$( echo -e "${{ env.sample_var_2 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_3="$( echo -e "${{ env.sample_var_3 }}" | sed -E 's/"/\\"/g' )";
-          if [[ "$( echo "${{ steps.manual-vars.outputs.sample_var_0 }}" )" != "$( echo "${sample_var_0}" )" ]]; then
-            printf "Invalid sample_var_0:\n    expected:'%s'\n    received: '%s'\n" "${sample_var_0}" "${{ steps.manual-vars.outputs.sample_var_0 }}"
-            diff <(echo -e "${sample_var_0}") <(echo -e "${{ steps.manual-vars.outputs.sample_var_0 }}" )
+          echo -e "${{ env.sample_var_0 }}" >/tmp/sample_var_0.txt;
+          echo -e "${{ env.sample_var_1 }}" >/tmp/sample_var_1.txt;
+          echo -e "${{ env.sample_var_2 }}" >/tmp/sample_var_2.txt;
+          echo -e "${{ env.sample_var_3 }}" >/tmp/sample_var_3.txt;
+
+          echo -e "${{ steps.manual-vars.outputs.sample_var_0 }}" >/tmp/manual_sample_var_0.txt;
+          echo -e "${{ steps.manual-vars.outputs.sample_var_1 }}" >/tmp/manual_sample_var_1.txt;
+          echo -e "${{ steps.manual-vars.outputs.sample_var_2 }}" >/tmp/manual_sample_var_2.txt;
+          echo -e "${{ steps.manual-vars.outputs.sample_var_3 }}" >/tmp/manual_sample_var_3.txt;
+
+          if [[ "$( cat /tmp/sample_var_0.txt )" != "$( cat /tmp/manual_sample_var_0.txt )" ]]; then
+            printf "Invalid sample_var_0:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_0.txt)" "$(cat /tmp/manual_sample_var_0.txt)"
+            git diff --no-index /tmp/sample_var_0.txt; /tmp/manual_sample_var_0.txt;
             exit 1
           fi;
-          if [[ "$( echo "${{ steps.manual-vars.outputs.sample_var_1 }}" )" != "$( echo "${sample_var_1}" )" ]]; then
-            printf "Invalid sample_var_1:\n    expected:'%s'\n    received: '%s'\n" "${sample_var_1}" "${{ steps.manual-vars.outputs.sample_var_1 }}"
-            diff <(echo -e "${sample_var_1}") <(echo -e "${{ steps.manual-vars.outputs.sample_var_1 }}" )
+          if [[ "$( cat /tmp/sample_var_1.txt )" != "$( cat /tmp/manual_sample_var_1.txt )" ]]; then
+            printf "Invalid sample_var_1:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_1.txt)" "$(cat /tmp/manual_sample_var_1.txt)"
+            git diff --no-index /tmp/sample_var_1.txt; /tmp/manual_sample_var_1.txt;
             exit 1
           fi;
-          if [[ "$( echo "${{ steps.manual-vars.outputs.sample_var_2 }}" )" != "$( echo "${sample_var_2}" )" ]]; then
-            printf "Invalid sample_var_2:\n    expected:'%s'\n    received: '%s'\n" "${sample_var_2}" "${{ steps.manual-vars.outputs.sample_var_2 }}"
-            diff <(echo -e "${sample_var_2}") <(echo -e "${{ steps.manual-vars.outputs.sample_var_2 }}" )
+          if [[ "$( cat /tmp/sample_var_2.txt )" != "$( cat /tmp/manual_sample_var_2.txt )" ]]; then
+            printf "Invalid sample_var_2:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_2.txt)" "$(cat /tmp/manual_sample_var_2.txt)"
+            git diff --no-index /tmp/sample_var_2.txt; /tmp/manual_sample_var_2.txt;
             exit 1
           fi;
-          if [[ "$( echo "${{ steps.manual-vars.outputs.sample_var_3 }}" )" != "$( echo "${sample_var_3}" )" ]]; then
-            printf "Invalid sample_var_3:\n    expected:'%s'\n    received: '%s'\n" "${sample_var_3}" "${{ steps.manual-vars.outputs.sample_var_3 }}"
-            diff <(echo -e "${sample_var_3}") <(echo -e "${{ steps.manual-vars.outputs.sample_var_3 }}" )
+          if [[ "$( cat /tmp/sample_var_3.txt )" != "$( cat /tmp/manual_sample_var_3.txt )" ]]; then
+            printf "Invalid sample_var_3:\n    expected:'%s'\n    received: '%s'\n" "$(cat /tmp/sample_var_3.txt)" "$(cat /tmp/manual_sample_var_3.txt)"
+            git diff --no-index /tmp/sample_var_3.txt; /tmp/manual_sample_var_3.txt;
             exit 1
           fi;
 

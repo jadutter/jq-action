@@ -87,7 +87,6 @@ jobs:
             {}
           ]
         }
-        Task:100% complete
     runs-on: ubuntu-latest
     steps:
       - name: Manually set variables

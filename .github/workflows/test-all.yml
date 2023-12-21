@@ -325,8 +325,8 @@ jobs:
         uses: jadutter/jq-action@hotfix/patch-action
         with:
           cmd: >
-            sample_data="$( echo -e "${{ env.sample_data }}" | sed -E 's/"/\\"/g' )";
-            echo "declared sample_data";
+            sample_data="${{ env.sample_data }}";
+            echo "declared sample_data='${sample_data}'";
 
             echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_0.txt
             jq -n "${sample_data}" | jq 'paths | length' >/tmp/var_0.txt

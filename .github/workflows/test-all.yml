@@ -273,7 +273,21 @@ jobs:
         id: manual-vars-jq
         with:
           cmd: >
-            sample_data="${{ env.sample_data }}";
+            sample_data=' {
+              "types": {
+                "null": null,
+                "boolean": false,
+                "number": 123,
+                "strings": {
+                  "single": "lorem",
+                  "cost": "$1.99",
+                  "percentage": "99.99% complete",
+                  "multiline": "Task:\n\t100% complete"
+                },
+                "array": [],
+                "object": {}
+              }
+            }';
             echo "declared sample_data='${sample_data}'";
 
             var_0="$( jq -n "${sample_data}" | jq 'paths | length' )";
@@ -325,7 +339,21 @@ jobs:
         uses: jadutter/jq-action@hotfix/patch-action
         with:
           cmd: >
-            sample_data="${{ env.sample_data }}";
+            sample_data=' {
+              "types": {
+                "null": null,
+                "boolean": false,
+                "number": 123,
+                "strings": {
+                  "single": "lorem",
+                  "cost": "$1.99",
+                  "percentage": "99.99% complete",
+                  "multiline": "Task:\n\t100% complete"
+                },
+                "array": [],
+                "object": {}
+              }
+            }';
             echo "declared sample_data='${sample_data}'";
 
             echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_0.txt

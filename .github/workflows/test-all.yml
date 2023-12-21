@@ -376,8 +376,8 @@ jobs:
             jq -n "${sample_data}" | jq '.' >/tmp/var_4.txt;
             echo "declared var_4='$(cat /tmp/var_4.txt)'";
 
-            git diff --no-index /tmp/expected_var_0.txt /tmp/var_0.txt
-            git diff --no-index /tmp/expected_var_1.txt /tmp/var_1.txt
-            git diff --no-index /tmp/expected_var_2.txt /tmp/var_2.txt
-            git diff --no-index /tmp/expected_var_3.txt /tmp/var_3.txt
-            git diff --no-index /tmp/expected_var_4.txt /tmp/var_4.txt
+            git diff --no-index /tmp/expected_var_0.txt /tmp/var_0.txt;
+            git diff --no-index /tmp/expected_var_1.txt /tmp/var_1.txt;
+            git diff --no-index /tmp/expected_var_2.txt /tmp/var_2.txt;
+            git diff --no-index /tmp/expected_var_3.txt /tmp/var_3.txt;
+            git diff --no-index /tmp/expected_var_4.txt /tmp/var_4.txt;

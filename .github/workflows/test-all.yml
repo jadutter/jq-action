@@ -360,19 +360,19 @@ jobs:
             jq -n "${sample_data}" | jq 'paths | length' >/tmp/var_0.txt;
             echo "declared var_0='$(cat /tmp/var_0.txt)'";
 
-            echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_1.txt;
+            echo "${{ steps.manual-vars-jq.outputs.var_1 }}">/tmp/expected_var_1.txt;
             jq -n "${sample_data}" | jq 'paths' >/tmp/var_1.txt;
             echo "declared var_1='$(cat /tmp/var_1.txt)'";
 
-            echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_2.txt;
+            echo "${{ steps.manual-vars-jq.outputs.var_2 }}">/tmp/expected_var_2.txt;
             jq -n "${sample_data}" | jq 'paths(scalars)' >/tmp/var_2.txt;
             echo "declared var_2='$(cat /tmp/var_2.txt)'";
 
-            echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_3.txt;
+            echo "${{ steps.manual-vars-jq.outputs.var_3 }}">/tmp/expected_var_3.txt;
             jq -n "${sample_data}" | jq 'to_entries' >/tmp/var_3.txt;
             echo "declared var_3='$(cat /tmp/var_3.txt)'";
 
-            echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_4.txt;
+            echo "${{ steps.manual-vars-jq.outputs.var_4 }}">/tmp/expected_var_4.txt;
             jq -n "${sample_data}" | jq '.' >/tmp/var_4.txt;
             echo "declared var_4='$(cat /tmp/var_4.txt)'";
 

@@ -1,17 +1,8 @@
-# Release Image =============================================================
-FROM alpine:latest as build
+FROM alpine:latest
 
-COPY entrypoint.sh /entrypoint.sh
+COPY ../../tests /tests
+COPY ../../entrypoint.sh /entrypoint.sh
 
-RUN apk add jq bash 
-
-ENTRYPOINT ["/entrypoint.sh"]
-
-# Develop Image =============================================================
-FROM release_image as dev
-
-COPY tests /tests
-
-RUN apk add git
+RUN apk add jq bash git
 
 ENTRYPOINT ["/entrypoint.sh"]

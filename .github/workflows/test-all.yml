@@ -242,16 +242,16 @@ jobs:
           )";
 
           if [[ "${#jq_version}" -gt 3 ]]; then
-            echo "jq version is '${jq_version}'"
+            echo "jq version is '${jq_version}'";
           else
-            (
-            cat << 'EOF'
-            stdout:'${{ steps.get-jq-version.output.stdout }}'
-            stderr:'${{ steps.get-jq-version.output.stderr }}'
-            exit_code:'${{ steps.get-jq-version.output.exit_code }}'
-            EOF
-            );
-            exit 1
+          (
+          cat << 'EOF'
+          stdout:'${{ steps.get-jq-version.output.stdout }}'
+          stderr:'${{ steps.get-jq-version.output.stderr }}'
+          exit_code:'${{ steps.get-jq-version.output.exit_code }}'
+          EOF
+          );
+          exit 1;
           fi
 
       - name: Get git version

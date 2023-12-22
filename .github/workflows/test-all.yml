@@ -358,128 +358,136 @@ jobs:
           );
           git diff --no-index /tmp/expected.txt /tmp/received.txt;
 
-      # # attempt to set arbitary variables within the jq-action container
-      # - name: Use manual variables
-      #   uses: jadutter/jq-action@hotfix/patch-action
-      #   id: manual-vars-jq
-      #   with:
-      #     cmd: >
-      #       sample_data="$(cat << 'EOF'
-      #       {
-      #         "types": {
-      #           "null": null,
-      #           "boolean": false,
-      #           "number": 123,
-      #           "strings": {
-      #             "single": "lorem",
-      #             "cost": "$1.99",
-      #             "percentage": "99.99% complete",
-      #             "multiline": "Task:\n\t100% complete"
-      #           },
-      #           "array": [],
-      #           "object": {}
-      #         }
-      #       }
-      #       EOF
-      #       )";
-      #       echo "declared sample_data='${sample_data}'";
+      # attempt to set arbitary variables within the jq-action container
+      - name: Use manual variables
+        uses: jadutter/jq-action@hotfix/patch-action
+        id: manual-vars-jq
+        with:
+          cmd: >
+            sample_data="$(
+            cat << 'EOF'
+            {
+              "types": {
+                "null": null,
+                "boolean": false,
+                "number": 123,
+                "strings": {
+                  "single": "lorem",
+                  "cost": "$1.99",
+                  "percentage": "99.99% complete",
+                  "multiline": "Task:\n\t100% complete"
+                },
+                "array": [],
+                "object": {}
+              }
+            }
+            EOF
+            )";
+            echo "declared sample_data='${sample_data}'";
 
-      #       var_0="$( jq -n "${sample_data}" | jq 'paths | length' )";
-      #       echo "declared var_0='${var_0}'";
-      #       # {
-      #       #   echo 'var_0<<EOF'
-      #       #   echo "${var_0}" | sed -E 's/"/\\"/g'
-      #       #   echo "EOF"
-      #       # } >> $GITHUB_OUTPUT;
-      #       cat << EOF_GITHUB_OUTPUT >>$GITHUB_OUTPUT
-      #       var_0<<EOF
-      #       ${var_0}
-      #       EOF
-      #       EOF_GITHUB_OUTPUT
-      #       echo "set var_0";
+            var_0="$( jq -n "${sample_data}" | jq 'paths | length' )";
+            echo "declared var_0='${var_0}'";
+            # {
+            #   echo 'var_0<<EOF'
+            #   echo "${var_0}" | sed -E 's/"/\\"/g'
+            #   echo "EOF"
+            # } >> $GITHUB_OUTPUT;
 
-      #       var_1="$( jq -n "${sample_data}" | jq 'paths' )";
-      #       echo "declared var_1='${var_1}'";
-      #       {
-      #         echo 'var_1<<EOF'
-      #         echo "${var_1}" | sed -E 's/"/\\"/g'
-      #         echo "EOF"
-      #       } >> $GITHUB_OUTPUT;
-      #       echo "set var_1";
+            (
+            cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+            var_0<<EOF
+            ${var_0}
+            EOF
+            EOF_GITHUB_OUTPUT
+            );
+            echo "set var_0";
 
-      #       var_2="$( jq -n "${sample_data}" | jq 'paths(scalars)' )";
-      #       echo "declared var_2='${var_2}'";
-      #       {
-      #         echo 'var_2<<EOF'
-      #         echo "${var_2}" | sed -E 's/"/\\"/g'
-      #         echo "EOF"
-      #       } >> $GITHUB_OUTPUT;
-      #       echo "set var_2";
+            var_1="$( jq -n "${sample_data}" | jq 'paths' )";
+            echo "declared var_1='${var_1}'";
+            {
+              echo 'var_1<<EOF'
+              echo "${var_1}" | sed -E 's/"/\\"/g'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT;
+            echo "set var_1";
 
-      #       var_3="$( jq -n "${sample_data}" | jq 'to_entries' )";
-      #       echo "declared var_3='${var_3}'";
-      #       {
-      #         echo 'var_3<<EOF'
-      #         echo "${var_3}" | sed -E 's/"/\\"/g'
-      #         echo "EOF"
-      #       } >> $GITHUB_OUTPUT;
-      #       echo "set var_3";
+            var_2="$( jq -n "${sample_data}" | jq 'paths(scalars)' )";
+            echo "declared var_2='${var_2}'";
+            {
+              echo 'var_2<<EOF'
+              echo "${var_2}" | sed -E 's/"/\\"/g'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT;
+            echo "set var_2";
 
-      #       var_4="$( jq -n "${sample_data}" | jq '.' )";
-      #       echo "declared var_4='${var_4}'";
-      #       {
-      #         echo 'var_4<<EOF'
-      #         echo "${var_4}" | sed -E 's/"/\\"/g'
-      #         echo "EOF"
-      #       } >> $GITHUB_OUTPUT;
-      #       echo "set var_4";
+            var_3="$( jq -n "${sample_data}" | jq 'to_entries' )";
+            echo "declared var_3='${var_3}'";
+            {
+              echo 'var_3<<EOF'
+              echo "${var_3}" | sed -E 's/"/\\"/g'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT;
+            echo "set var_3";
 
-      # # Check the output of the manually set variables matches our expectations
-      # - name: Check manual variables
-      #   uses: jadutter/jq-action@hotfix/patch-action
-      #   with:
-      #     cmd: >
-      #       sample_data='{
-      #         "types": {
-      #           "null": null,
-      #           "boolean": false,
-      #           "number": 123,
-      #           "strings": {
-      #             "single": "lorem",
-      #             "cost": "$1.99",
-      #             "percentage": "99.99% complete",
-      #             "multiline": "Task:\n\t100% complete"
-      #           },
-      #           "array": [],
-      #           "object": {}
-      #         }
-      #       }';
-      #       echo "declared sample_data='${sample_data}'";
+            var_4="$( jq -n "${sample_data}" | jq '.' )";
+            echo "declared var_4='${var_4}'";
+            {
+              echo 'var_4<<EOF'
+              echo "${var_4}" | sed -E 's/"/\\"/g'
+              echo "EOF"
+            } >> $GITHUB_OUTPUT;
+            echo "set var_4";
 
-      #       cat << EOF >/tmp/received_var_0.txt
-      #       ${{ steps.manual-vars-jq.outputs.var_0 }}
-      #       EOF
-      #       cat << EOF >/tmp/received_var_1.txt
-      #       ${{ steps.manual-vars-jq.outputs.var_1 }}
-      #       EOF
-      #       cat << EOF >/tmp/received_var_2.txt
-      #       ${{ steps.manual-vars-jq.outputs.var_2 }}
-      #       EOF
-      #       cat << EOF >/tmp/received_var_3.txt
-      #       ${{ steps.manual-vars-jq.outputs.var_3 }}
-      #       EOF
-      #       cat << EOF >/tmp/received_var_4.txt
-      #       ${{ steps.manual-vars-jq.outputs.var_4 }}
-      #       EOF
+      # Check the output of the manually set variables matches our expectations
+      - name: Check manual variables
+        uses: jadutter/jq-action@hotfix/patch-action
+        with:
+          cmd: >
+            sample_data="$(
+            cat << 'EOF'
+            {
+              "types": {
+                "null": null,
+                "boolean": false,
+                "number": 123,
+                "strings": {
+                  "single": "lorem",
+                  "cost": "$1.99",
+                  "percentage": "99.99% complete",
+                  "multiline": "Task:\n\t100% complete"
+                },
+                "array": [],
+                "object": {}
+              }
+            }
+            EOF
+            )";
+            echo "declared sample_data='${sample_data}'";
 
-      #       jq -n "${sample_data}" | jq 'paths | length' >/tmp/expected_var_0.txt;
-      #       jq -n "${sample_data}" | jq 'paths' >/tmp/expected_var_1.txt;
-      #       jq -n "${sample_data}" | jq 'paths(scalars)' >/tmp/expected_var_2.txt;
-      #       jq -n "${sample_data}" | jq 'to_entries' >/tmp/expected_var_3.txt;
-      #       jq -n "${sample_data}" | jq '.' >/tmp/expected_var_4.txt;
+            cat << EOF >/tmp/received_var_0.txt
+            ${{ steps.manual-vars-jq.outputs.var_0 }}
+            EOF
+            cat << EOF >/tmp/received_var_1.txt
+            ${{ steps.manual-vars-jq.outputs.var_1 }}
+            EOF
+            cat << EOF >/tmp/received_var_2.txt
+            ${{ steps.manual-vars-jq.outputs.var_2 }}
+            EOF
+            cat << EOF >/tmp/received_var_3.txt
+            ${{ steps.manual-vars-jq.outputs.var_3 }}
+            EOF
+            cat << EOF >/tmp/received_var_4.txt
+            ${{ steps.manual-vars-jq.outputs.var_4 }}
+            EOF
 
-      #       git diff --no-index /tmp/expected_var_0.txt /tmp/received__var_0.txt &&
-      #       git diff --no-index /tmp/expected_var_1.txt /tmp/received__var_1.txt &&
-      #       git diff --no-index /tmp/expected_var_2.txt /tmp/received__var_2.txt &&
-      #       git diff --no-index /tmp/expected_var_3.txt /tmp/received__var_3.txt &&
-      #       git diff --no-index /tmp/expected_var_4.txt /tmp/received__var_4.txt;
+            jq -n "${sample_data}" | jq 'paths | length' >/tmp/expected_var_0.txt;
+            jq -n "${sample_data}" | jq 'paths' >/tmp/expected_var_1.txt;
+            jq -n "${sample_data}" | jq 'paths(scalars)' >/tmp/expected_var_2.txt;
+            jq -n "${sample_data}" | jq 'to_entries' >/tmp/expected_var_3.txt;
+            jq -n "${sample_data}" | jq '.' >/tmp/expected_var_4.txt;
+
+            git diff --no-index /tmp/expected_var_0.txt /tmp/received__var_0.txt &&
+            git diff --no-index /tmp/expected_var_1.txt /tmp/received__var_1.txt &&
+            git diff --no-index /tmp/expected_var_2.txt /tmp/received__var_2.txt &&
+            git diff --no-index /tmp/expected_var_3.txt /tmp/received__var_3.txt &&
+            git diff --no-index /tmp/expected_var_4.txt /tmp/received__var_4.txt;

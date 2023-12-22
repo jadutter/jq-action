@@ -202,22 +202,20 @@ jobs:
       # for the command we executed within the jq-action container
       - name: Check jq usage
         run: |
-          expected="$(
-          cat << 'EOF'
+          (
+          cat << 'EOF' >/tmp/expected.txt
           stdout:'["bar"]'
           stderr:''
           exit_code:'0'
           EOF
-          )";
-          echo "${expected}" >/tmp/expected.txt
-          received="$(
-          cat << 'EOF'
+          );
+          (
+          cat << 'EOF' >/tmp/received.txt
           stdout:'${{ steps.test-use-jq.outputs.stdout }}'
           stderr:'${{ steps.test-use-jq.outputs.stderr }}'
           exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
           EOF
-          )";
-          echo "${received}" >/tmp/received.txt
+          );
           git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
       # attempt to pass in a muliline command to be executed in the jq-action
@@ -241,7 +239,6 @@ jobs:
           exit_code:'0'
           EOF
           );
-
           (
           cat << 'EOF' >/tmp/received.txt
           stdout:'${{ steps.test-use-jq-multiline.outputs.stdout }}'
@@ -252,31 +249,31 @@ jobs:
 
           git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
-      # # attempt to use jq in a way that would produce an error
-      # - name: Cause jq
-      #   uses: jadutter/jq-action@hotfix/patch-action
-      #   id: test-use-jq
-      #   with:
-      #     # we get the value of 'foo', so that returns 'baz';
-      #     # we cannot access the value of 'baz' on a string,
-      #     # so it should throw an error
-      #     cmd: 'jq -cn "{foo:\"bar\"} | [.foo.baz]" '
+      # attempt to use jq in a way that would produce an error
+      - name: Cause jq
+        uses: jadutter/jq-action@hotfix/patch-action
+        id: test-use-jq
+        with:
+          # we get the value of 'foo', so that returns 'baz';
+          # we cannot access the value of 'baz' on a string,
+          # so it should throw an error
+          cmd: 'jq -cn "{foo:\"bar\"} | [.foo.baz]" '
 
-      # # confirm the jq-action allows us to access the stderr, stdout, and exit code
-      # # for the command we executed within the jq-action container
-      # - name: Check jq error
-      #   run: >
-      #     cat << 'EOF' >/tmp/expected.txt
-      #     stdout:''
-      #     stderr:'jq: error (at <unknown>): Cannot index string with string "baz"'
-      #     exit_code:'5'
-      #     EOF
-      #     cat << 'EOF' >/tmp/received.txt
-      #     stdout:'${{ steps.test-use-jq.outputs.stdout }}'
-      #     stderr:'${{ steps.test-use-jq.outputs.stderr }}'
-      #     exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
-      #     EOF
-      #     git diff --no-index  /tmp/expected.txt /tmp/received.txt;
+      # confirm the jq-action allows us to access the stderr, stdout, and exit code
+      # for the command we executed within the jq-action container
+      - name: Check jq error
+        run: |
+          cat << 'EOF' >/tmp/expected.txt
+          stdout:''
+          stderr:'jq: error (at <unknown>): Cannot index string with string "baz"'
+          exit_code:'5'
+          EOF
+          cat << 'EOF' >/tmp/received.txt
+          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          EOF
+          git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
       # # attempt to use a multiline command in the jq-action that should
       # # return a multiline result

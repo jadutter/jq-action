@@ -253,6 +253,7 @@ jobs:
       - name: Cause jq
         uses: jadutter/jq-action@hotfix/patch-action
         id: test-cause-jq-error
+        continue-on-error: true
         with:
           # we get the value of 'foo', so that returns 'baz';
           # we cannot access the value of 'baz' on a string,

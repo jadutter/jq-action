@@ -276,86 +276,89 @@ jobs:
           EOF
           git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
-      # # attempt to use a multiline command in the jq-action that should
-      # # return a multiline result
-      # - name: Use multiline input and output
-      #   uses: jadutter/jq-action@hotfix/patch-action
-      #   id: test-use-jq-multi-input-output
-      #   with:
-      #     cmd: >
-      #       jq -n '{
-      #         types: {
-      #           null: null,
-      #           boolean: false,
-      #           number: 123,
-      #           strings: {
-      #             single: "lorem",
-      #             cost: "$1.99",
-      #             percentage: "99.99% complete",
-      #             multiline: "Task:\n  100% complete"
-      #           },
-      #           array: [],
-      #           object: {}
-      #         }
-      #       }' |
-      #       jq -r '
-      #           [
-      #               {
-      #                   types: .types,
-      #                   array: (
-      #                       .types | to_entries | map(.value)
-      #                   )
-      #               },
-      #               getpath(["types", "strings", "multiline"])
-      #           ] | .[]
-      #       '
+      # attempt to use a multiline command in the jq-action that should
+      # return a multiline result
+      - name: Use multiline input and output
+        uses: jadutter/jq-action@hotfix/patch-action
+        id: test-use-jq-multi-input-output
+        with:
+          cmd: >
+            jq -n '{
+              types: {
+                null: null,
+                boolean: false,
+                number: 123,
+                strings: {
+                  single: "lorem",
+                  cost: "$1.99",
+                  percentage: "99.99% complete",
+                  multiline: "Task:\n  100% complete"
+                },
+                array: [],
+                object: {}
+              }
+            }' |
+            jq -r '
+                [
+                    {
+                        types: .types,
+                        array: (
+                            .types | to_entries | map(.value)
+                        )
+                    },
+                    getpath(["types", "strings", "multiline"])
+                ] | .[]
+            '
 
-      # # confirm we can receive the muliline output we are expecting
-      # - name: Check multiline input and output
-      #   run: >
-      #     cat << 'EOF' >/tmp/expected.txt
-      #     stdout:'{
-      #       "types": {
-      #         "null": null,
-      #         "boolean": false,
-      #         "number": 123,
-      #         "strings": {
-      #           "single": "lorem",
-      #           "cost": "$1.99",
-      #           "percentage": "99.99% complete",
-      #           "multiline": "Task:
-      #       100% complete"
-      #         },
-      #         "array": [],
-      #         "object": {}
-      #       },
-      #       "array": [
-      #         null,
-      #         false,
-      #         123,
-      #         {
-      #           "single": "lorem",
-      #           "cost": "$1.99",
-      #           "percentage": "99.99% complete",
-      #           "multiline": "Task:
-      #       100% complete"
-      #         },
-      #         [],
-      #         {}
-      #       ]
-      #     }
-      #     Task:
-      #       100% complete'
-      #     stderr:''
-      #     exit_code:'0'
-      #     EOF
-
-      #     cat << 'EOF' >/tmp/received.txt
-      #     stdout:'${{ steps.test-use-jq.outputs.stdout }}'
-      #     stderr:'${{ steps.test-use-jq.outputs.stderr }}'
-      #     exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
-      #     EOF
-      #     git diff --no-index /tmp/expected.txt /tmp/received.txt;
+      # confirm we can receive the muliline output we are expecting
+      - name: Check multiline input and output
+        run: |
+          (
+          cat << 'EOF' >/tmp/expected.txt
+          stdout:'{
+            "types": {
+              "null": null,
+              "boolean": false,
+              "number": 123,
+              "strings": {
+                "single": "lorem",
+                "cost": "$1.99",
+                "percentage": "99.99% complete",
+                "multiline": "Task:
+            100% complete"
+              },
+              "array": [],
+              "object": {}
+            },
+            "array": [
+              null,
+              false,
+              123,
+              {
+                "single": "lorem",
+                "cost": "$1.99",
+                "percentage": "99.99% complete",
+                "multiline": "Task:
+            100% complete"
+              },
+              [],
+              {}
+            ]
+          }
+          Task:
+            100% complete'
+          stderr:''
+          exit_code:'0'
+          EOF
+          );
+          (
+          cat << 'EOF' >/tmp/received.txt
+          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          EOF
+          );
+          git diff --no-index /tmp/expected.txt /tmp/received.txt;
 
       # # attempt to set arbitary variables within the jq-action container
       # - name: Use manual variables

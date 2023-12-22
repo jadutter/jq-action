@@ -87,7 +87,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Print Env Vars
-        id: manual-vars
         run: |
           (
           cat << EOF

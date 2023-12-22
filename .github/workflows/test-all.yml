@@ -267,14 +267,14 @@ jobs:
           if [[ "${#git_version}" -gt 3 ]]; then
             echo "git version is '${git_version}'"
           else
-            (
-            cat << 'EOF'
-            stdout:'${{ steps.get-git-version.output.stdout }}'
-            stderr:'${{ steps.get-git-version.output.stderr }}'
-            exit_code:'${{ steps.get-git-version.output.exit_code }}'
-            EOF
-            );
-            exit 1
+          (
+          cat << 'EOF'
+          stdout:'${{ steps.get-git-version.output.stdout }}'
+          stderr:'${{ steps.get-git-version.output.stderr }}'
+          exit_code:'${{ steps.get-git-version.output.exit_code }}'
+          EOF
+          );
+          exit 1;
           fi
 
       - name: Get bash version
@@ -295,14 +295,14 @@ jobs:
           if [[ "${#bash_version}" -gt 3 ]]; then
             echo "bash version is '${bash_version}'"
           else
-            (
-            cat << 'EOF'
-            stdout:'${{ steps.get-bash-version.output.stdout }}'
-            stderr:'${{ steps.get-bash-version.output.stderr }}'
-            exit_code:'${{ steps.get-bash-version.output.exit_code }}'
-            EOF
-            );
-            exit 1
+          (
+          cat << 'EOF'
+          stdout:'${{ steps.get-bash-version.output.stdout }}'
+          stderr:'${{ steps.get-bash-version.output.stderr }}'
+          exit_code:'${{ steps.get-bash-version.output.exit_code }}'
+          EOF
+          );
+          exit 1;
           fi
 
   # confirm the action itself can be used as expected

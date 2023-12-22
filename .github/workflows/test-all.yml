@@ -203,7 +203,7 @@ jobs:
 
   # confirm the docker environment we're creating for the action looks the way we expect it to look
   job-test-env:
-    needs: [job-test-workflow-syntax]
+    # needs: [job-test-workflow-syntax]
     runs-on: ubuntu-latest
 
     steps:
@@ -306,7 +306,7 @@ jobs:
 
   # confirm the action itself can be used as expected
   job-test-action:
-    needs: [job-test-workflow-syntax, job-test-env]
+    # needs: [job-test-workflow-syntax, job-test-env]
     runs-on: ubuntu-latest
 
     steps:

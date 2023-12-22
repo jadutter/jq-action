@@ -324,8 +324,7 @@ jobs:
                 "single": "lorem",
                 "cost": "$1.99",
                 "percentage": "99.99% complete",
-                "multiline": "Task:
-            100% complete"
+                "multiline": "Task:\n  100% complete"
               },
               "array": [],
               "object": {}

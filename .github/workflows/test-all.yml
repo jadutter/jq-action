@@ -191,11 +191,7 @@ jobs:
           ${{ steps.manual-vars.outputs.sample_var_3 }}
           EOF
           );
-          (
-          cat << EOF >/tmp/received_literal_sample_var.txt
-          ${{ steps.manual-vars.outputs.literal_sample_var }}
-          EOF
-          );
+          echo '${{ steps.manual-vars.outputs.literal_sample_var }}' >/tmp/received_literal_sample_var.txt;
           echo "::endgroup::";
 
           echo "::group::Compare results";
@@ -242,15 +238,14 @@ jobs:
       - name: Check jq version
         run: |
           jq_version="$(
-            echo "${{ steps.get-jq-version.outputs.stdout }}" |\
-            egrep -o 'jq-.+' 
+            echo "${{ steps.get-jq-version.outputs.stdout }}" | egrep -o 'jq-.+' 
           )";
 
           if [[ "${#jq_version}" -gt 3 ]]; then
             echo "jq version is '${jq_version}'"
           else
             (
-            cat << EOF
+            cat << 'EOF'
             stdout:'${{ steps.get-jq-version.output.stdout }}'
             stderr:'${{ steps.get-jq-version.output.stderr }}'
             exit_code:'${{ steps.get-jq-version.output.exit_code }}'
@@ -273,7 +268,7 @@ jobs:
             echo "git version is '${git_version}'"
           else
             (
-            cat << EOF
+            cat << 'EOF'
             stdout:'${{ steps.get-git-version.output.stdout }}'
             stderr:'${{ steps.get-git-version.output.stderr }}'
             exit_code:'${{ steps.get-git-version.output.exit_code }}'
@@ -301,7 +296,7 @@ jobs:
             echo "bash version is '${bash_version}'"
           else
             (
-            cat << EOF
+            cat << 'EOF'
             stdout:'${{ steps.get-bash-version.output.stdout }}'
             stderr:'${{ steps.get-bash-version.output.stderr }}'
             exit_code:'${{ steps.get-bash-version.output.exit_code }}'

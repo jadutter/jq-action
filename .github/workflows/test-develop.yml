@@ -15,7 +15,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
       - name: validate tests exist
         uses: ./docker/develop/
         id: valid-tests

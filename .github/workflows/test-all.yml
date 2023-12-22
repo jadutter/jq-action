@@ -215,7 +215,7 @@ jobs:
           echo "name=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT;
 
       - name: Validate entrypoint
-        uses: ./
+        uses: ./docker/develop/
         id: valid-entrypoint
         with:
           cmd: |
@@ -229,7 +229,7 @@ jobs:
             echo "entrypoint.sh appears to be valid"
 
       - name: Get jq version
-        uses: ./
+        uses: ./docker/develop/
         id: get-jq-version
         with:
           cmd: 'jq --version'
@@ -254,7 +254,7 @@ jobs:
           fi
 
       - name: Get git version
-        uses: ./
+        uses: ./docker/develop/
         id: get-git-version
         with:
           cmd: 'git --version'
@@ -277,7 +277,7 @@ jobs:
           fi
 
       - name: Get bash version
-        uses: ./
+        uses: ./docker/develop/
         id: get-bash-version
         with:
           cmd: |
@@ -314,7 +314,7 @@ jobs:
 
       # attempt to use jq in a single line command via jq-action
       - name: Use jq
-        uses: ./
+        uses: ./docker/develop/
         id: test-use-jq
         with:
           cmd: 'jq -cn "{foo:\"bar\"} | [.foo]" '
@@ -341,7 +341,7 @@ jobs:
 
       # attempt to pass in a muliline command to be executed in the jq-action
       - name: Use multiline command
-        uses: ./
+        uses: ./docker/develop/
         id: test-use-jq-multiline
         with:
           # use YAML folded style for multiline command
@@ -372,7 +372,7 @@ jobs:
 
       # attempt to use jq in a way that would produce an error
       - name: Cause jq
-        uses: ./
+        uses: ./docker/develop/
         id: test-cause-jq-error
         continue-on-error: true
         with:
@@ -400,7 +400,7 @@ jobs:
       # attempt to use a multiline command in the jq-action that should
       # return a multiline result
       - name: Use multiline input and output
-        uses: ./
+        uses: ./docker/develop/
         id: test-use-jq-multi-input-output
         with:
           cmd: >
@@ -467,7 +467,7 @@ jobs:
 
       # attempt to set arbitary variables within the jq-action container
       - name: Use manual variables
-        uses: ./
+        uses: ./docker/develop/
         id: manual-vars-jq
         with:
           cmd: |

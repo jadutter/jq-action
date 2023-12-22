@@ -202,16 +202,20 @@ jobs:
       # for the command we executed within the jq-action container
       - name: Check jq usage
         run: >
-          cat << 'EOF' >/tmp/expected.txt
-          stdout:'["bar"]'
-          stderr:''
-          exit_code:'0'
-          EOF
-          cat << 'EOF' >/tmp/received.txt
-          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
-          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
-          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
-          EOF
+          {
+            cat << 'EOF' >/tmp/expected.txt
+            stdout:'["bar"]'
+            stderr:''
+            exit_code:'0'
+            EOF
+          };
+          {
+            cat << 'EOF' >/tmp/received.txt
+            stdout:'${{ steps.test-use-jq.outputs.stdout }}'
+            stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+            exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+            EOF
+          }
           git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
       # attempt to pass in a muliline command to be executed in the jq-action
@@ -228,16 +232,20 @@ jobs:
       # for the command we executed within the jq-action container
       - name: Check multiline command
         run: >
-          cat << 'EOF' >/tmp/expected.txt
-          stdout:'true'
-          stderr:''
-          exit_code:'0'
-          EOF
-          cat << 'EOF' >/tmp/received.txt
-          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
-          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
-          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
-          EOF
+          {
+            cat << 'EOF' >/tmp/expected.txt
+            stdout:'true'
+            stderr:''
+            exit_code:'0'
+            EOF
+          }
+          {
+            cat << 'EOF' >/tmp/received.txt
+            stdout:'${{ steps.test-use-jq.outputs.stdout }}'
+            stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+            exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+            EOF
+          }
           git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
       # # attempt to use jq in a way that would produce an error

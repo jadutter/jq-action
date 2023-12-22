@@ -202,20 +202,20 @@ jobs:
       # for the command we executed within the jq-action container
       - name: Check jq usage
         run: >
-          expected="$(\x0a
-          cat << 'EOF'\x0a
-          stdout:'["bar"]'\x0a
-          stderr:''\x0a
-          exit_code:'0'\x0a
-          EOF\x0a
+          expected="$(\\x0a
+          cat << 'EOF'\\x0a
+          stdout:'["bar"]'\\x0a
+          stderr:''\\x0a
+          exit_code:'0'\\x0a
+          EOF\\x0a
           )";
           echo "${expected}" >/tmp/expected.txt
-          received="$(\x0a
-          cat << 'EOF'\x0a
-          stdout:'${{ steps.test-use-jq.outputs.stdout }}'\x0a
-          stderr:'${{ steps.test-use-jq.outputs.stderr }}'\x0a
-          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'\x0a
-          EOF\x0a
+          received="$(\\x0a
+          cat << 'EOF'\\x0a
+          stdout:'${{ steps.test-use-jq.outputs.stdout }}'\\x0a
+          stderr:'${{ steps.test-use-jq.outputs.stderr }}'\\x0a
+          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'\\x0a
+          EOF\\x0a
           )";
           echo "${received}" >/tmp/received.txt
           git diff --no-index  /tmp/expected.txt /tmp/received.txt;

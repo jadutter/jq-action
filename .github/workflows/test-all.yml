@@ -353,9 +353,9 @@ jobs:
           );
           (
           cat << 'EOF' >/tmp/received.txt
-          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
-          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
-          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          stdout:'${{ steps.test-use-jq-multi-input-output.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq-multi-input-output.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq-multi-input-output.outputs.exit_code }}'
           EOF
           );
           git diff --no-index /tmp/expected.txt /tmp/received.txt;

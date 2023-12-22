@@ -24,64 +24,64 @@ env:
         "object": {}
       }
     }
-    sample_var_0: '9'
-    sample_var_1: |
-      [
-        \"types\",
-        \"number\"
-        ]
-      [
-        \"types\",
-        \"strings\",
-        \"single\"
-        ]
-      [
-        \"types\",
-        \"strings\",
-        \"cost\"
-        ]
-      [
-        \"types\",
-        \"strings\",
-        \"percentage\"
-        ]
-      [
-        \"types\",
-        \"strings\",
-        \"multiline\"
+  sample_var_0: '9'
+  sample_var_1: |
+    [
+      \"types\",
+      \"number\"
       ]
+    [
+      \"types\",
+      \"strings\",
+      \"single\"
+      ]
+    [
+      \"types\",
+      \"strings\",
+      \"cost\"
+      ]
+    [
+      \"types\",
+      \"strings\",
+      \"percentage\"
+      ]
+    [
+      \"types\",
+      \"strings\",
+      \"multiline\"
+    ]
 
-    sample_var_2: |
-      {\"types\":{\"null\":null,\"boolean\":false,\"number\":123,\"strings\":{\"single\":\"lorem\",\"cost\":\"$1.99\"}
-    sample_var_3: |
-      {
-        \"types\": {
-          \"null\": null,
-          \"boolean\": false,
-          \"number\": 123,
-          \"strings\": {
-            \"single\": \"lorem\",
-            \"cost\": \"$1.99\",
-            \"percentage\": \"99.99% complete\",
-            \"multiline\": \"Task:\n          100% complete\"
-          },
-          \"array\": [],
-          \"object\": {}
+  sample_var_2: |
+    {\"types\":{\"null\":null,\"boolean\":false,\"number\":123,\"strings\":{\"single\":\"lorem\",\"cost\":\"$1.99\"}
+  sample_var_3: |
+    {
+      \"types\": {
+        \"null\": null,
+        \"boolean\": false,
+        \"number\": 123,
+        \"strings\": {
+          \"single\": \"lorem\",
+          \"cost\": \"$1.99\",
+          \"percentage\": \"99.99% complete\",
+          \"multiline\": \"Task:\n          100% complete\"
         },
-        \"array\": [
-          null,
-          false,
-          123,
-          {
-            \"single\": \"lorem\",
-            \"cost\": \"$1.99\",
-            \"percentage\": \"99.99% complete\",
-            \"multiline\": \"Task:\n\t100% complete\"
-          },
-          [],
-          {}
-        ]
-      }
+        \"array\": [],
+        \"object\": {}
+      },
+      \"array\": [
+        null,
+        false,
+        123,
+        {
+          \"single\": \"lorem\",
+          \"cost\": \"$1.99\",
+          \"percentage\": \"99.99% complete\",
+          \"multiline\": \"Task:\n\t100% complete\"
+        },
+        [],
+        {}
+      ]
+    }
 jobs:
   # confirm the workflow syntax we will use works
   job-test-workflow-syntax:

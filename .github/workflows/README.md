@@ -49,12 +49,12 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 but I don't see a way to have a github workflow target a specific docker build. It can target a specific directory, but that would require some re-organizing files, and reorganizing may break GitHub's ability to use a Dockerfile at the root level. 
 
+Example command to stop at a specific image. 
+```
+docker build -f Dockerfile --target release_image .
+```
+
 (I don't think I'm explaining this well; but hopefully these are just notes for myself)
-
-
-## `test-develop.yml` 
-
-## `test-release.yml` 
 
 
 # Syntax Notes
@@ -346,7 +346,7 @@ Also, please note that the `heredoc` cannot be indented (such as within an `if-e
 Lastly, the `git diff` should display what is different between `/tmp/expected.txt` (defined by `step_two`), and `/tmp/received.txt` (saved in `step_two`, but defined by what we export from `step_one`). If nothing is different, then the `exit_code` will be `0`, and the step will pass. If something is different, then the `exit_code` will be `1`, and the step will error.
 
 
-## Random Notes 
+# Random Notes 
 
 Ideally, I would be able to do this 
 

@@ -5,8 +5,8 @@ on:
     branches:
       - 'develop'
   pull_request:
-    branches:
-      - '!release'
+    branches_ignore:
+      - 'release'
   # execute these tests on any branch that is not the 'release' branch,
   # as the 'release' branch should not have the 'tests' directory
 jobs:

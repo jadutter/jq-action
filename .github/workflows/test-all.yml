@@ -24,164 +24,283 @@ env:
         "object": {}
       }
     }
+    sample_var_0: '9'
+    sample_var_1: |
+      [
+        \"types\",
+        \"number\"
+        ]
+      [
+        \"types\",
+        \"strings\",
+        \"single\"
+        ]
+      [
+        \"types\",
+        \"strings\",
+        \"cost\"
+        ]
+      [
+        \"types\",
+        \"strings\",
+        \"percentage\"
+        ]
+      [
+        \"types\",
+        \"strings\",
+        \"multiline\"
+      ]
+
+    sample_var_2: |
+      {\"types\":{\"null\":null,\"boolean\":false,\"number\":123,\"strings\":{\"single\":\"lorem\",\"cost\":\"$1.99\"}
+    sample_var_3: |
+      {
+        \"types\": {
+          \"null\": null,
+          \"boolean\": false,
+          \"number\": 123,
+          \"strings\": {
+            \"single\": \"lorem\",
+            \"cost\": \"$1.99\",
+            \"percentage\": \"99.99% complete\",
+            \"multiline\": \"Task:\n          100% complete\"
+          },
+          \"array\": [],
+          \"object\": {}
+        },
+        \"array\": [
+          null,
+          false,
+          123,
+          {
+            \"single\": \"lorem\",
+            \"cost\": \"$1.99\",
+            \"percentage\": \"99.99% complete\",
+            \"multiline\": \"Task:\n\t100% complete\"
+          },
+          [],
+          {}
+        ]
+      }
 jobs:
-  # # confirm we know how to properly escape the data that goes into output variables
-  # job-test-workflow-syntax:
-  #   env:
-  #     sample_var_0: '9'
-  #     sample_var_1: |
-  #       [
-  #         \"types\",
-  #         \"number\"
-  #         ]
-  #       [
-  #         \"types\",
-  #         \"strings\",
-  #         \"single\"
-  #         ]
-  #       [
-  #         \"types\",
-  #         \"strings\",
-  #         \"cost\"
-  #         ]
-  #       [
-  #         \"types\",
-  #         \"strings\",
-  #         \"percentage\"
-  #         ]
-  #       [
-  #         \"types\",
-  #         \"strings\",
-  #         \"multiline\"
-  #       ]
+  # confirm the workflow syntax we will use works
+  job-test-workflow-syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set manual variables
+        id: manual-vars
+        run: |
+          sample_var_0="${{ env.sample_var_0 }}"
+          sample_var_1="${{ env.sample_var_1 }}"
+          sample_var_2="${{ env.sample_var_2 }}"
+          sample_var_3="${{ env.sample_var_3 }}"
 
-  #     sample_var_2: |
-  #       {\"types\":{\"null\":null,\"boolean\":false,\"number\":123,\"strings\":{\"single\":\"lorem\",\"cost\":\"$1.99\"}
-  #     sample_var_3: |
-  #       {
-  #         \"types\": {
-  #           \"null\": null,
-  #           \"boolean\": false,
-  #           \"number\": 123,
-  #           \"strings\": {
-  #             \"single\": \"lorem\",
-  #             \"cost\": \"$1.99\",
-  #             \"percentage\": \"99.99% complete\",
-  #             \"multiline\": \"Task:\n          100% complete\"
-  #           },
-  #           \"array\": [],
-  #           \"object\": {}
-  #         },
-  #         \"array\": [
-  #           null,
-  #           false,
-  #           123,
-  #           {
-  #             \"single\": \"lorem\",
-  #             \"cost\": \"$1.99\",
-  #             \"percentage\": \"99.99% complete\",
-  #             \"multiline\": \"Task:\n\t100% complete\"
-  #           },
-  #           [],
-  #           {}
-  #         ]
-  #       }
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Manually set variables
-  #       id: manual-vars
-  #       run: >
-  #         sample_var_0="${{ env.sample_var_0 }}"
-  #         sample_var_1="${{ env.sample_var_1 }}"
-  #         sample_var_2="${{ env.sample_var_2 }}"
-  #         sample_var_3="${{ env.sample_var_3 }}"
+          echo "declared variables";
+          (
+          cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+          sample_var_0<<EOF
+          ${sample_var_0}
+          EOF
+          EOF_GITHUB_OUTPUT
+          );
 
-  #         echo "declared variables";
-  #         {
-  #           echo 'sample_var_0<<EOF'
-  #           echo "${sample_var_0}" | sed -E 's/"/\\"/g'
-  #           echo EOF
-  #         } >> $GITHUB_OUTPUT;
-  #         {
-  #           echo 'sample_var_1<<EOF'
-  #           echo "${sample_var_1}" | sed -E 's/"/\\"/g'
-  #           echo EOF
-  #         } >> $GITHUB_OUTPUT;
-  #         {
-  #           echo 'sample_var_2<<EOF'
-  #           echo "${sample_var_2}" | sed -E 's/"/\\"/g'
-  #           echo EOF
-  #         } >> $GITHUB_OUTPUT;
-  #         {
-  #           echo 'sample_var_3<<EOF'
-  #           echo "${sample_var_3}" | sed -E 's/"/\\"/g'
-  #           echo EOF
-  #         } >> $GITHUB_OUTPUT;
+          (
+          cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+          sample_var_1<<EOF
+          ${sample_var_1}
+          EOF
+          EOF_GITHUB_OUTPUT
+          );
 
-  #     - name: Check variables
-  #       run: >
-  #         echo -e "${{ env.sample_var_0 }}" >/tmp/sample_var_0.txt;
-  #         echo -e "${{ env.sample_var_1 }}" >/tmp/sample_var_1.txt;
-  #         echo -e "${{ env.sample_var_2 }}" >/tmp/sample_var_2.txt;
-  #         echo -e "${{ env.sample_var_3 }}" >/tmp/sample_var_3.txt;
+          (
+          cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+          sample_var_2<<EOF
+          ${sample_var_2}
+          EOF
+          EOF_GITHUB_OUTPUT
+          );
 
-  #         echo -e "${{ steps.manual-vars.outputs.sample_var_0 }}" >/tmp/manual_sample_var_0.txt;
-  #         echo -e "${{ steps.manual-vars.outputs.sample_var_1 }}" >/tmp/manual_sample_var_1.txt;
-  #         echo -e "${{ steps.manual-vars.outputs.sample_var_2 }}" >/tmp/manual_sample_var_2.txt;
-  #         echo -e "${{ steps.manual-vars.outputs.sample_var_3 }}" >/tmp/manual_sample_var_3.txt;
+          (
+          cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+          sample_var_3<<EOF
+          ${sample_var_3}
+          EOF
+          EOF_GITHUB_OUTPUT
+          );
 
-  #         git diff --no-index /tmp/sample_var_0.txt /tmp/manual_sample_var_0.txt && \
-  #         git diff --no-index /tmp/sample_var_1.txt /tmp/manual_sample_var_1.txt && \
-  #         git diff --no-index /tmp/sample_var_2.txt /tmp/manual_sample_var_2.txt && \
-  #         git diff --no-index /tmp/sample_var_3.txt /tmp/manual_sample_var_3.txt;
+          (
+          cat << 'EOF_GITHUB_OUTPUT' >> $GITHUB_OUTPUT
+          literal_sample_var<<EOF
+          ${sample_var_3}
+          EOF
+          EOF_GITHUB_OUTPUT
+          );
 
-  # # confirm the docker environment we're creating for the action looks the way we expect it to look
-  # job-test-env:
-  #   needs: [job-test-workflow-syntax]
-  #   runs-on: ubuntu-latest
+      - name: Check manual variables
+        run: |
+          (
+          cat << EOF >/tmp/expected_sample_var_0.txt;
+          ${{ env.sample_var_0 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/expected_sample_var_1.txt;
+          ${{ env.sample_var_1 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/expected_sample_var_2.txt;
+          ${{ env.sample_var_2 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/expected_sample_var_3.txt;
+          ${{ env.sample_var_3 }}
+          EOF
+          );
 
-  #   steps:
-  #     - uses: actions/checkout@v2
+          literal_sample_var='${sample_var_3}'
+          (
+          cat << EOF >/tmp/expected_literal_sample_var.txt;
+          ${literal_sample_var}
+          EOF
+          );
 
-  #     - name: Commit info
-  #       run: >
-  #         echo "hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT;
-  #         echo "name=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT;
+          (
+          cat << EOF >/tmp/received_sample_var_0.txt
+          ${{ steps.manual-vars.outputs.sample_var_0 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/received_sample_var_1.txt
+          ${{ steps.manual-vars.outputs.sample_var_1 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/received_sample_var_2.txt
+          ${{ steps.manual-vars.outputs.sample_var_2 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/received_sample_var_3.txt
+          ${{ steps.manual-vars.outputs.sample_var_3 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/received_literal_sample_var.txt
+          ${{ steps.manual-vars.outputs.literal_sample_var }}
+          EOF
+          );
 
-  #     - name: Validate entrypoint
-  #       uses: jadutter/jq-action@hotfix/patch-action
-  #       id: valid-entrypoint
-  #       with:
-  #         cmd: >
-  #           if [ ! -f '/entrypoint.sh' ]; then
-  #             echo "forgot to add entrypoint.sh" >&2
-  #             exit 1
-  #           elif [ ! -x '/entrypoint.sh' ]; then
-  #             echo "forgot to make entrypoint.sh executable" >&2
-  #             exit 2
-  #           fi;
-  #           echo "entrypoint is valid"
+          git diff --no-index /tmp/expected_sample_var_0.txt /tmp/received_sample_var_0.txt && \
+          git diff --no-index /tmp/expected_sample_var_1.txt /tmp/received_sample_var_1.txt && \
+          git diff --no-index /tmp/expected_sample_var_2.txt /tmp/received_sample_var_2.txt && \
+          git diff --no-index /tmp/expected_sample_var_3.txt /tmp/received_sample_var_3.txt && \
+          git diff --no-index /tmp/expected_literal_sample_var.txt /tmp/received_literal_sample_var.txt;
 
-  #     - name: Get jq version
-  #       uses: jadutter/jq-action@hotfix/patch-action
-  #       id: version
-  #       with:
-  #         cmd: 'jq --version'
+  # confirm the docker environment we're creating for the action looks the way we expect it to look
+  job-test-env:
+    needs: [job-test-workflow-syntax]
+    runs-on: ubuntu-latest
 
-  #     - name: Check version
-  #       run: >
-  #         jq_version="$(echo "${{ steps.version.outputs.stdout }}" | egrep -o 'jq-.+' )";
-  #         if [[ "${#jq_version}" -gt 3 ]]; then
-  #           echo "jq version is '${jq_version}'"
-  #         else
-  #           echo "stdout:"
-  #           echo "${{ steps.version.outputs.stdout }}"
-  #           echo "stderr:"
-  #           echo "${{ steps.version.outputs.stderr }}"
-  #           echo "exit_code:"
-  #           echo "${{ steps.version.outputs.exit_code }}"
-  #           exit 1
-  #         fi
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Commit info
+        run: >
+          echo "hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT;
+          echo "name=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT;
+
+      - name: Validate entrypoint
+        uses: jadutter/jq-action@hotfix/patch-action
+        id: valid-entrypoint
+        with:
+          cmd: |
+            if [ ! -f '/entrypoint.sh' ]; then
+              echo "::error file=entrypoint.sh,title=Missing entrypoint.sh::entrypoint.sh does not appear to exist!";
+              exit 1
+            elif [ ! -x '/entrypoint.sh' ]; then
+              echo "::error file=entrypoint.sh,title=Unusable entrypoint.sh::entrypoint.sh does not appear to be executable!";
+              exit 2
+            fi;
+            echo "entrypoint.sh appears to be valid"
+
+      - name: Get jq version
+        uses: jadutter/jq-action@hotfix/patch-action
+        id: get-jq-version
+        with:
+          cmd: 'jq --version'
+
+      - name: Check jq version
+        run: |
+          jq_version="$(
+            echo "${{ steps.get-jq-version.outputs.stdout }}" |\
+            egrep -o 'jq-.+' 
+          )";
+
+          if [[ "${#jq_version}" -gt 3 ]]; then
+            echo "jq version is '${jq_version}'"
+          else
+            (
+            cat << EOF
+            stdout:'${{ steps.get-jq-version.output.stdout }}'
+            stderr:'${{ steps.get-jq-version.output.stderr }}'
+            exit_code:'${{ steps.get-jq-version.output.exit_code }}'
+            EOF
+            );
+            exit 1
+          fi
+
+      - name: Get git version
+        uses: jadutter/jq-action@hotfix/patch-action
+        id: get-git-version
+        with:
+          cmd: 'git --version'
+
+      - name: Check git version
+        run: |
+          git_version="${{ steps.get-git-version.outputs.stdout }}";
+
+          if [[ "${#git_version}" -gt 3 ]]; then
+            echo "git version is '${git_version}'"
+          else
+            (
+            cat << EOF
+            stdout:'${{ steps.get-git-version.output.stdout }}'
+            stderr:'${{ steps.get-git-version.output.stderr }}'
+            exit_code:'${{ steps.get-git-version.output.exit_code }}'
+            EOF
+            );
+            exit 1
+          fi
+
+      - name: Get bash version
+        uses: jadutter/jq-action@hotfix/patch-action
+        id: get-bash-version
+        with:
+          cmd: |
+            /bin/bash -c 'echo "$(
+              echo ${BASH_VERSINFO[@]:0:4} | sed -E "s, +\$,,g;" | tr " " "."
+            )$(
+              echo ${BASH_VERSINFO[@]:4:2} | sed -E "s, +\$,,g; s,^(.),-\1,g;" |tr " " "-" 
+            )";'
+
+      - name: Check bash version
+        run: |
+          bash_version="${{ steps.get-bash-version.outputs.stdout }}";
+
+          if [[ "${#bash_version}" -gt 3 ]]; then
+            echo "bash version is '${bash_version}'"
+          else
+            (
+            cat << EOF
+            stdout:'${{ steps.get-bash-version.output.stdout }}'
+            stderr:'${{ steps.get-bash-version.output.stderr }}'
+            exit_code:'${{ steps.get-bash-version.output.exit_code }}'
+            EOF
+            );
+            exit 1
+          fi
 
   # confirm the action itself can be used as expected
   job-test-action:

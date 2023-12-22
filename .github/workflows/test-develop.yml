@@ -20,7 +20,7 @@ jobs:
         uses: jadutter/jq-action@hotfix/patch-action
         id: valid-tests
         with:
-          cmd: >
+          cmd: |
             if [ ! -d '/tests' ]; then
               echo "tests directory does not exist " >&2;
               exit 1

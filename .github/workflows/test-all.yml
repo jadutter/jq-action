@@ -494,8 +494,8 @@ jobs:
           jq -n "${sample_data}" | jq 'to_entries' >/tmp/expected_var_3.txt;
           jq -n "${sample_data}" | jq '.' >/tmp/expected_var_4.txt;
 
-          git diff --no-index /tmp/expected_var_0.txt /tmp/received__var_0.txt &&
-          git diff --no-index /tmp/expected_var_1.txt /tmp/received__var_1.txt &&
-          git diff --no-index /tmp/expected_var_2.txt /tmp/received__var_2.txt &&
-          git diff --no-index /tmp/expected_var_3.txt /tmp/received__var_3.txt &&
-          git diff --no-index /tmp/expected_var_4.txt /tmp/received__var_4.txt;
+          git diff --no-index /tmp/expected_var_0.txt /tmp/received_var_0.txt &&
+          git diff --no-index /tmp/expected_var_1.txt /tmp/received_var_1.txt &&
+          git diff --no-index /tmp/expected_var_2.txt /tmp/received_var_2.txt &&
+          git diff --no-index /tmp/expected_var_3.txt /tmp/received_var_3.txt &&
+          git diff --no-index /tmp/expected_var_4.txt /tmp/received_var_4.txt;

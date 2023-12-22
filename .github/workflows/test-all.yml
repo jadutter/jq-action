@@ -16,7 +16,7 @@ env:
         "number": 123,
         "strings": {
           "single": "lorem",
-          "cost": "1.99",
+          "cost": "$1.99",
           "percentage": "99.99% complete",
           "multiline": "Task:\n\t100% complete"
         },
@@ -273,14 +273,14 @@ jobs:
         id: manual-vars-jq
         with:
           cmd: >
-            sample_data=' {
+            sample_data='{
               "types": {
                 "null": null,
                 "boolean": false,
                 "number": 123,
                 "strings": {
                   "single": "lorem",
-                  "cost": "1.99",
+                  "cost": "$1.99",
                   "percentage": "99.99% complete",
                   "multiline": "Task:\n\t100% complete"
                 },
@@ -346,7 +346,7 @@ jobs:
                 "number": 123,
                 "strings": {
                   "single": "lorem",
-                  "cost": "1.99",
+                  "cost": "$1.99",
                   "percentage": "99.99% complete",
                   "multiline": "Task:\n\t100% complete"
                 },

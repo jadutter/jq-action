@@ -472,27 +472,27 @@ jobs:
           jq -n "${sample_data}" | jq '.' >/tmp/expected_var_4.txt;
 
           (
-          cat << EOF >/tmp/received_var_0.txt
+          cat << 'EOF' >/tmp/received_var_0.txt
           ${{ steps.manual-vars-jq.outputs.var_0 }}
           EOF
           );
           (
-          cat << EOF >/tmp/received_var_1.txt
+          cat << 'EOF' >/tmp/received_var_1.txt
           ${{ steps.manual-vars-jq.outputs.var_1 }}
           EOF
           );
           (
-          cat << EOF >/tmp/received_var_2.txt
+          cat << 'EOF' >/tmp/received_var_2.txt
           ${{ steps.manual-vars-jq.outputs.var_2 }}
           EOF
           );
           (
-          cat << EOF >/tmp/received_var_3.txt
+          cat << 'EOF' >/tmp/received_var_3.txt
           ${{ steps.manual-vars-jq.outputs.var_3 }}
           EOF
           );
           (
-          cat << EOF >/tmp/received_var_4.txt
+          cat << 'EOF' >/tmp/received_var_4.txt
           ${{ steps.manual-vars-jq.outputs.var_4 }}
           EOF
           );

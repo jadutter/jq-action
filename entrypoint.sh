@@ -6,12 +6,12 @@ echo "${INPUT_CMD}" >/tmp/input
 echo "exit_code=$(cat /tmp/exit_code)"  >> $GITHUB_OUTPUT
 (
     echo 'stderr<<EOF'
-    cat /tmp/error | ./encode.sh
+    cat /tmp/error
     echo 'EOF'
 )  >> $GITHUB_OUTPUT
 (
     echo 'stdout<<EOF'
-    cat /tmp/output | ./encode.sh
+    cat /tmp/output
     echo 'EOF'
 )  >> $GITHUB_OUTPUT
 exit "$(cat /tmp/exit_code)"

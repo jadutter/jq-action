@@ -201,21 +201,21 @@ jobs:
       # confirm the jq-action allows us to access the stderr, stdout, and exit code
       # for the command we executed within the jq-action container
       - name: Check jq usage
-        run: >
-          expected="$(\\x0a
-          cat << 'EOF'\\x0a
-          stdout:'["bar"]'\\x0a
-          stderr:''\\x0a
-          exit_code:'0'\\x0a
-          EOF\\x0a
+        run: |
+          expected="$(
+          cat << 'EOF'
+          stdout:'["bar"]'
+          stderr:''
+          exit_code:'0'
+          EOF
           )";
           echo "${expected}" >/tmp/expected.txt
-          received="$(\\x0a
-          cat << 'EOF'\\x0a
-          stdout:'${{ steps.test-use-jq.outputs.stdout }}'\\x0a
-          stderr:'${{ steps.test-use-jq.outputs.stderr }}'\\x0a
-          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'\\x0a
-          EOF\\x0a
+          received="$(
+          cat << 'EOF'
+          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          EOF
           )";
           echo "${received}" >/tmp/received.txt
           git diff --no-index  /tmp/expected.txt /tmp/received.txt;

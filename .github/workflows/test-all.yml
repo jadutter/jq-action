@@ -363,7 +363,7 @@ jobs:
         uses: jadutter/jq-action@hotfix/patch-action
         id: manual-vars-jq
         with:
-          cmd: >
+          cmd: |
             sample_data="$(
             cat << 'EOF'
             {
@@ -440,54 +440,62 @@ jobs:
 
       # Check the output of the manually set variables matches our expectations
       - name: Check manual variables
-        uses: jadutter/jq-action@hotfix/patch-action
-        with:
-          cmd: >
-            sample_data="$(
-            cat << 'EOF'
-            {
-              "types": {
-                "null": null,
-                "boolean": false,
-                "number": 123,
-                "strings": {
-                  "single": "lorem",
-                  "cost": "$1.99",
-                  "percentage": "99.99% complete",
-                  "multiline": "Task:\n\t100% complete"
-                },
-                "array": [],
-                "object": {}
-              }
+        run: |
+          sample_data="$(
+          cat << 'EOF'
+          {
+            "types": {
+              "null": null,
+              "boolean": false,
+              "number": 123,
+              "strings": {
+                "single": "lorem",
+                "cost": "$1.99",
+                "percentage": "99.99% complete",
+                "multiline": "Task:\n\t100% complete"
+              },
+              "array": [],
+              "object": {}
             }
-            EOF
-            )";
-            echo "declared sample_data='${sample_data}'";
+          }
+          EOF
+          )";
+          echo "declared sample_data='${sample_data}'";
 
-            cat << EOF >/tmp/received_var_0.txt
-            ${{ steps.manual-vars-jq.outputs.var_0 }}
-            EOF
-            cat << EOF >/tmp/received_var_1.txt
-            ${{ steps.manual-vars-jq.outputs.var_1 }}
-            EOF
-            cat << EOF >/tmp/received_var_2.txt
-            ${{ steps.manual-vars-jq.outputs.var_2 }}
-            EOF
-            cat << EOF >/tmp/received_var_3.txt
-            ${{ steps.manual-vars-jq.outputs.var_3 }}
-            EOF
-            cat << EOF >/tmp/received_var_4.txt
-            ${{ steps.manual-vars-jq.outputs.var_4 }}
-            EOF
+          (
+          cat << EOF >/tmp/received_var_0.txt
+          ${{ steps.manual-vars-jq.outputs.var_0 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/received_var_1.txt
+          ${{ steps.manual-vars-jq.outputs.var_1 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/received_var_2.txt
+          ${{ steps.manual-vars-jq.outputs.var_2 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/received_var_3.txt
+          ${{ steps.manual-vars-jq.outputs.var_3 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/received_var_4.txt
+          ${{ steps.manual-vars-jq.outputs.var_4 }}
+          EOF
+          );
 
-            jq -n "${sample_data}" | jq 'paths | length' >/tmp/expected_var_0.txt;
-            jq -n "${sample_data}" | jq 'paths' >/tmp/expected_var_1.txt;
-            jq -n "${sample_data}" | jq 'paths(scalars)' >/tmp/expected_var_2.txt;
-            jq -n "${sample_data}" | jq 'to_entries' >/tmp/expected_var_3.txt;
-            jq -n "${sample_data}" | jq '.' >/tmp/expected_var_4.txt;
+          jq -n "${sample_data}" | jq 'paths | length' >/tmp/expected_var_0.txt;
+          jq -n "${sample_data}" | jq 'paths' >/tmp/expected_var_1.txt;
+          jq -n "${sample_data}" | jq 'paths(scalars)' >/tmp/expected_var_2.txt;
+          jq -n "${sample_data}" | jq 'to_entries' >/tmp/expected_var_3.txt;
+          jq -n "${sample_data}" | jq '.' >/tmp/expected_var_4.txt;
 
-            git diff --no-index /tmp/expected_var_0.txt /tmp/received__var_0.txt &&
-            git diff --no-index /tmp/expected_var_1.txt /tmp/received__var_1.txt &&
-            git diff --no-index /tmp/expected_var_2.txt /tmp/received__var_2.txt &&
-            git diff --no-index /tmp/expected_var_3.txt /tmp/received__var_3.txt &&
-            git diff --no-index /tmp/expected_var_4.txt /tmp/received__var_4.txt;
+          git diff --no-index /tmp/expected_var_0.txt /tmp/received__var_0.txt &&
+          git diff --no-index /tmp/expected_var_1.txt /tmp/received__var_1.txt &&
+          git diff --no-index /tmp/expected_var_2.txt /tmp/received__var_2.txt &&
+          git diff --no-index /tmp/expected_var_3.txt /tmp/received__var_3.txt &&
+          git diff --no-index /tmp/expected_var_4.txt /tmp/received__var_4.txt;

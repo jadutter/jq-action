@@ -252,7 +252,7 @@ jobs:
       # attempt to use jq in a way that would produce an error
       - name: Cause jq
         uses: jadutter/jq-action@hotfix/patch-action
-        id: test-use-jq
+        id: test-cause-jq-error
         with:
           # we get the value of 'foo', so that returns 'baz';
           # we cannot access the value of 'baz' on a string,
@@ -269,9 +269,9 @@ jobs:
           exit_code:'5'
           EOF
           cat << 'EOF' >/tmp/received.txt
-          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
-          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
-          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          stdout:'${{ steps.test-cause-jq-error.outputs.stdout }}'
+          stderr:'${{ steps.test-cause-jq-error.outputs.stderr }}'
+          exit_code:'${{ steps.test-cause-jq-error.outputs.exit_code }}'
           EOF
           git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 

@@ -220,35 +220,37 @@ jobs:
           echo "${received}" >/tmp/received.txt
           git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
-      # # attempt to pass in a muliline command to be executed in the jq-action
-      # - name: Use multiline command
-      #   uses: jadutter/jq-action@hotfix/patch-action
-      #   id: test-use-jq-multiline
-      #   with:
-      #     # use YAML folded style for multiline command
-      #     cmd: >
-      #       echo '{"foo":"bar"}' |
-      #       jq '.foo == "bar"'
+      # attempt to pass in a muliline command to be executed in the jq-action
+      - name: Use multiline command
+        uses: jadutter/jq-action@hotfix/patch-action
+        id: test-use-jq-multiline
+        with:
+          # use YAML folded style for multiline command
+          cmd: >
+            echo '{"foo":"bar"}' |
+            jq '.foo == "bar"'
 
-      # # confirm the jq-action allows us to access the stderr, stdout, and exit code
-      # # for the command we executed within the jq-action container
-      # - name: Check multiline command
-      #   run: >
-      #     expected="$(cat << 'EOF'
-      #     stdout:'true'
-      #     stderr:''
-      #     exit_code:'0'
-      #     EOF
-      #     )";
-      #     echo "${expected}" >/tmp/expected.txt
-      #     received="$(cat << 'EOF'
-      #     stdout:'${{ steps.test-use-jq.outputs.stdout }}'
-      #     stderr:'${{ steps.test-use-jq.outputs.stderr }}'
-      #     exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
-      #     EOF
-      #     )";
-      #     echo "${received}" >/tmp/received.txt
-      #     git diff --no-index  /tmp/expected.txt /tmp/received.txt;
+      # confirm the jq-action allows us to access the stderr, stdout, and exit code
+      # for the command we executed within the jq-action container
+      - name: Check multiline command
+        run: |
+          (
+          cat << 'EOF' >/tmp/expected.txt
+          stdout:'true'
+          stderr:''
+          exit_code:'0'
+          EOF
+          );
+
+          (
+          cat << 'EOF' >/tmp/received.txt
+          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          EOF
+          );
+
+          git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
       # # attempt to use jq in a way that would produce an error
       # - name: Cause jq

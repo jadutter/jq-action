@@ -18,7 +18,7 @@ env:
           "single": "lorem",
           "cost": "$1.99",
           "percentage": "99.99% complete",
-          "multiline": "Task:\n\t100% complete"
+          "multiline": "Task:\n  100% complete"
         },
         "array": [],
         "object": {}
@@ -405,21 +405,7 @@ jobs:
         id: test-use-jq-multi-input-output
         with:
           cmd: >
-            jq -n '{
-              types: {
-                null: null,
-                boolean: false,
-                number: 123,
-                strings: {
-                  single: "lorem",
-                  cost: "$1.99",
-                  percentage: "99.99% complete",
-                  multiline: "Task:\n  100% complete"
-                },
-                array: [],
-                object: {}
-              }
-            }' |
+            jq -n '${{ env.sample_data }}' |
             jq -r '
                 [
                     {
@@ -566,25 +552,7 @@ jobs:
       # Check the output of the manually set variables matches our expectations
       - name: Check manual variables
         run: |
-          sample_data="$(
-          cat << 'EOF'
-          {
-            "types": {
-              "null": null,
-              "boolean": false,
-              "number": 123,
-              "strings": {
-                "single": "lorem",
-                "cost": "$1.99",
-                "percentage": "99.99% complete",
-                "multiline": "Task:\n\t100% complete"
-              },
-              "array": [],
-              "object": {}
-            }
-          }
-          EOF
-          )";
+          sample_data='${{ env.sample_data }}';
           echo "declared sample_data='${sample_data}'";
 
           jq -n "${sample_data}" | jq 'paths | length' >/tmp/expected_var_0.txt;

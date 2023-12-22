@@ -90,12 +90,13 @@ jobs:
       - name: Set manual variables
         id: manual-vars
         run: |
-          sample_var_0="${{ env.sample_var_0 }}"
-          sample_var_1="${{ env.sample_var_1 }}"
-          sample_var_2="${{ env.sample_var_2 }}"
-          sample_var_3="${{ env.sample_var_3 }}"
+          echo "::group::Declare Samples";
+          sample_var_0="${{ env.sample_var_0 }}";
+          sample_var_1="${{ env.sample_var_1 }}";
+          sample_var_2="${{ env.sample_var_2 }}";
+          sample_var_3="${{ env.sample_var_3 }}";
 
-          echo "declared variables";
+          echo "::group::Output Samples";
           (
           cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
           sample_var_0<<EOF
@@ -131,13 +132,15 @@ jobs:
           (
           cat << 'EOF_GITHUB_OUTPUT' >> $GITHUB_OUTPUT
           literal_sample_var<<EOF
-          ${sample_var_3}
+          $1.99
           EOF
           EOF_GITHUB_OUTPUT
           );
+          echo "::endgroup::";
 
       - name: Check manual variables
         run: |
+          echo "::group::Declare Expectations";
           (
           cat << EOF >/tmp/expected_sample_var_0.txt;
           ${{ env.sample_var_0 }}
@@ -159,13 +162,15 @@ jobs:
           EOF
           );
 
-          literal_sample_var='${sample_var_3}'
+          literal_sample_var='$1.99'
           (
           cat << EOF >/tmp/expected_literal_sample_var.txt;
           ${literal_sample_var}
           EOF
           );
+          echo "::endgroup::";
 
+          echo "::group::Receive results";
           (
           cat << EOF >/tmp/received_sample_var_0.txt
           ${{ steps.manual-vars.outputs.sample_var_0 }}
@@ -191,16 +196,19 @@ jobs:
           ${{ steps.manual-vars.outputs.literal_sample_var }}
           EOF
           );
+          echo "::endgroup::";
 
+          echo "::group::Compare results";
           git diff --no-index /tmp/expected_sample_var_0.txt /tmp/received_sample_var_0.txt && \
           git diff --no-index /tmp/expected_sample_var_1.txt /tmp/received_sample_var_1.txt && \
           git diff --no-index /tmp/expected_sample_var_2.txt /tmp/received_sample_var_2.txt && \
           git diff --no-index /tmp/expected_sample_var_3.txt /tmp/received_sample_var_3.txt && \
           git diff --no-index /tmp/expected_literal_sample_var.txt /tmp/received_literal_sample_var.txt;
+          echo "::endgroup::";
 
   # confirm the docker environment we're creating for the action looks the way we expect it to look
   job-test-env:
-    needs: [job-test-workflow-syntax]
+    # needs: [job-test-workflow-syntax]
     runs-on: ubuntu-latest
 
     steps:

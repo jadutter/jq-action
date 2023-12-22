@@ -1,5 +1,4 @@
-# Release Image =============================================================
-FROM alpine:latest as build
+FROM alpine:latest
 
 COPY entrypoint.sh /entrypoint.sh
 

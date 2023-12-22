@@ -130,9 +130,9 @@ jobs:
   #         echo -e "${{ steps.manual-vars.outputs.sample_var_2 }}" >/tmp/manual_sample_var_2.txt;
   #         echo -e "${{ steps.manual-vars.outputs.sample_var_3 }}" >/tmp/manual_sample_var_3.txt;
 
-  #         git diff --no-index /tmp/sample_var_0.txt /tmp/manual_sample_var_0.txt;
-  #         git diff --no-index /tmp/sample_var_1.txt /tmp/manual_sample_var_1.txt;
-  #         git diff --no-index /tmp/sample_var_2.txt /tmp/manual_sample_var_2.txt;
+  #         git diff --no-index /tmp/sample_var_0.txt /tmp/manual_sample_var_0.txt && \
+  #         git diff --no-index /tmp/sample_var_1.txt /tmp/manual_sample_var_1.txt && \
+  #         git diff --no-index /tmp/sample_var_2.txt /tmp/manual_sample_var_2.txt && \
   #         git diff --no-index /tmp/sample_var_3.txt /tmp/manual_sample_var_3.txt;
 
   # # confirm the docker environment we're creating for the action looks the way we expect it to look
@@ -191,47 +191,84 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: use jq
+      # attempt to use jq in a single line command via jq-action
+      - name: Use jq
         uses: jadutter/jq-action@hotfix/patch-action
         id: test-use-jq
         with:
           cmd: 'jq -cn "{foo:\"bar\"} | [.foo]" '
 
-      - name: Check usage
+      # confirm the jq-action allows us to access the stderr, stdout, and exit code
+      # for the command we executed within the jq-action container
+      - name: Check jq usage
         run: >
-          expected='["bar"]';
-          if [[ "${{ steps.test-use-jq.outputs.stdout }}" != "${expected}" ]]; then 
-            echo "stdout:"
-            echo "${{ steps.test-use-jq.outputs.stdout }}"
-            echo "stderr:"
-            echo "${{ steps.test-use-jq.outputs.stderr }}"
-            echo "exit_code:"
-            echo "${{ steps.test-use-jq.outputs.exit_code }}"
-            exit 1
-          fi
+          cat << 'EOF' >/tmp/expected.txt
+          stdout:'["bar"]'
+          stderr:''
+          exit_code:'0'
+          EOF
+          cat << 'EOF' >/tmp/received.txt
+          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          EOF
+          git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
-      - name: multi-line command
+      # attempt to pass in a muliline command to be executed in the jq-action
+      - name: Use multiline command
         uses: jadutter/jq-action@hotfix/patch-action
-        id: test-use-jq-multi-line
+        id: test-use-jq-multiline
         with:
-          # use YAML folded style for multi-line command
+          # use YAML folded style for multiline command
           cmd: >
             echo '{"foo":"bar"}' | 
             jq '.foo == "bar"'
 
-      - name: Check multiline usage
+      # confirm the jq-action allows us to access the stderr, stdout, and exit code
+      # for the command we executed within the jq-action container
+      - name: Check multiline command
         run: >
-          if [[ "$( echo "${{ steps.test-use-jq-multi-line.outputs.stdout }}" )" != "$(echo "true" )" ]]; then 
-            echo "stdout:"
-            echo "${{ steps.test-use-jq-multi-line.outputs.stdout }}"
-            echo "stderr:"
-            echo "${{ steps.test-use-jq-multi-line.outputs.stderr }}"
-            echo "exit_code:"
-            echo "${{ steps.test-use-jq-multi-line.outputs.exit_code }}"
-            exit 1
-          fi
+          cat << 'EOF' >/tmp/expected.txt
+          stdout:'true'
+          stderr:''
+          exit_code:'0'
+          EOF
+          cat << 'EOF' >/tmp/received.txt
+          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          EOF
+          git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
-      - name: multi-line input and output
+      # attempt to use jq in a way that would produce an error
+      - name: Cause jq
+        uses: jadutter/jq-action@hotfix/patch-action
+        id: test-use-jq
+        with:
+          # we get the value of 'foo', so that returns 'baz';
+          # we cannot access the value of 'baz' on a string,
+          # so it should throw an error
+          cmd: 'jq -cn "{foo:\"bar\"} | [.foo.baz]" '
+
+      # confirm the jq-action allows us to access the stderr, stdout, and exit code
+      # for the command we executed within the jq-action container
+      - name: Check jq error
+        run: >
+          cat << 'EOF' >/tmp/expected.txt
+          stdout:''
+          stderr:'jq: error (at <unknown>): Cannot index string with string "baz"'
+          exit_code:'5'
+          EOF
+          cat << 'EOF' >/tmp/received.txt
+          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          EOF
+          git diff --no-index  /tmp/expected.txt /tmp/received.txt;
+
+      # attempt to use a multiline command in the jq-action that should
+      # return a multiline result
+      - name: Use multiline input and output
         uses: jadutter/jq-action@hotfix/patch-action
         id: test-use-jq-multi-input-output
         with:
@@ -245,7 +282,7 @@ jobs:
                   single: "lorem",
                   cost: "$1.99",
                   percentage: "99.99% complete",
-                  multiline: "Task:\n\t100% complete"
+                  multiline: "Task:\n  100% complete"
                 },
                 array: [],
                 object: {}
@@ -263,18 +300,61 @@ jobs:
                 ] | .[]
             '
 
-      - name: Check multiline input and output usage
+      # confirm we can receive the muliline output we are expecting
+      - name: Check multiline input and output
         run: >
-          echo -e "$( echo "{\n  \"types\": {\n    \"null\": null,\n    \"boolean\": false,\n    \"number\": 123,\n    \"strings\": {\n      \"single\": \"lorem\",\n      \"cost\": \"\$1.99\",\n      \"percentage\": \"99.99% complete\",\n      \"multiline\": \"Task:\n\t100% complete\"\n    },\n    \"array\": [],\n    \"object\": {}\n  },\n  \"array\": [\n    null,\n    false,\n    123,\n    {\n      \"single\": \"lorem\",\n      \"cost\": \"\$1.99\",\n      \"percentage\": \"99.99% complete\",\n      \"multiline\": \"Task:\\n\\t100% complete\"\n    },\n    [],\n    {}\n  ]\n}\nTask:\n\t100% complete" )" >/tmp/expected.txt
-          echo -e "${{ steps.test-use-jq-multi-input-output.outputs.stdout }}" >/tmp/received.txt
+          cat << 'EOF' >/tmp/expected.txt
+          stdout:'{
+            "types": {
+              "null": null,
+              "boolean": false,
+              "number": 123,
+              "strings": {
+                "single": "lorem",
+                "cost": "$1.99",
+                "percentage": "99.99% complete",
+                "multiline": "Task:
+            100% complete"
+              },
+              "array": [],
+              "object": {}
+            },
+            "array": [
+              null,
+              false,
+              123,
+              {
+                "single": "lorem",
+                "cost": "$1.99",
+                "percentage": "99.99% complete",
+                "multiline": "Task:
+            100% complete"
+              },
+              [],
+              {}
+            ]
+          }
+          Task:
+            100% complete'
+          stderr:''
+          exit_code:'0'
+          EOF
+
+          cat << 'EOF' >/tmp/received.txt
+          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          EOF
           git diff --no-index /tmp/expected.txt /tmp/received.txt;
 
+      # attempt to set arbitary variables within the jq-action container
       - name: Check manual variables
         uses: jadutter/jq-action@hotfix/patch-action
         id: manual-vars-jq
         with:
           cmd: >
-            sample_data='{
+            sample_data="$(cat << 'EOF'
+            {
               "types": {
                 "null": null,
                 "boolean": false,
@@ -288,16 +368,23 @@ jobs:
                 "array": [],
                 "object": {}
               }
-            }';
+            }
+            EOF
+            )";
             echo "declared sample_data='${sample_data}'";
 
             var_0="$( jq -n "${sample_data}" | jq 'paths | length' )";
             echo "declared var_0='${var_0}'";
-            {
-              echo 'var_0<<EOF'
-              echo "${var_0}" | sed -E 's/"/\\"/g'
-              echo "EOF"
-            } >> $GITHUB_OUTPUT;
+            # {
+            #   echo 'var_0<<EOF'
+            #   echo "${var_0}" | sed -E 's/"/\\"/g'
+            #   echo "EOF"
+            # } >> $GITHUB_OUTPUT;
+            cat << EOF_GITHUB_OUTPUT >>$GITHUB_OUTPUT
+            var_0<<EOF
+            ${var_0}
+            EOF
+            EOF_GITHUB_OUTPUT
             echo "set var_0";
 
             var_1="$( jq -n "${sample_data}" | jq 'paths' )";
@@ -357,33 +444,30 @@ jobs:
             }';
             echo "declared sample_data='${sample_data}'";
 
-            echo "${{ steps.manual-vars-jq.outputs.var_0 }}">/tmp/expected_var_0.txt;
-            echo "expecting var_0='$(cat /tmp/expected_var_0.txt)'";
-            jq -n "${sample_data}" | jq 'paths | length' >/tmp/var_0.txt;
-            echo "declared var_0='$(cat /tmp/var_0.txt)'";
+            cat << EOF >/tmp/received_var_0.txt
+            ${{ steps.manual-vars-jq.outputs.var_0 }}
+            EOF
+            cat << EOF >/tmp/received_var_1.txt
+            ${{ steps.manual-vars-jq.outputs.var_1 }}
+            EOF
+            cat << EOF >/tmp/received_var_2.txt
+            ${{ steps.manual-vars-jq.outputs.var_2 }}
+            EOF
+            cat << EOF >/tmp/received_var_3.txt
+            ${{ steps.manual-vars-jq.outputs.var_3 }}
+            EOF
+            cat << EOF >/tmp/received_var_4.txt
+            ${{ steps.manual-vars-jq.outputs.var_4 }}
+            EOF
 
-            echo "${{ steps.manual-vars-jq.outputs.var_1 }}">/tmp/expected_var_1.txt;
-            echo "expecting var_1='$(cat /tmp/expected_var_1.txt)'";
-            jq -n "${sample_data}" | jq 'paths' >/tmp/var_1.txt;
-            echo "declared var_1='$(cat /tmp/var_1.txt)'";
+            jq -n "${sample_data}" | jq 'paths | length' >/tmp/expected_var_0.txt;
+            jq -n "${sample_data}" | jq 'paths' >/tmp/expected_var_1.txt;
+            jq -n "${sample_data}" | jq 'paths(scalars)' >/tmp/expected_var_2.txt;
+            jq -n "${sample_data}" | jq 'to_entries' >/tmp/expected_var_3.txt;
+            jq -n "${sample_data}" | jq '.' >/tmp/expected_var_4.txt;
 
-            echo "${{ steps.manual-vars-jq.outputs.var_2 }}">/tmp/expected_var_2.txt;
-            echo "expecting var_2='$(cat /tmp/expected_var_2.txt)'";
-            jq -n "${sample_data}" | jq 'paths(scalars)' >/tmp/var_2.txt;
-            echo "declared var_2='$(cat /tmp/var_2.txt)'";
-
-            echo "${{ steps.manual-vars-jq.outputs.var_3 }}">/tmp/expected_var_3.txt;
-            echo "expecting var_3='$(cat /tmp/expected_var_3.txt)'";
-            jq -n "${sample_data}" | jq 'to_entries' >/tmp/var_3.txt;
-            echo "declared var_3='$(cat /tmp/var_3.txt)'";
-
-            echo "${{ steps.manual-vars-jq.outputs.var_4 }}">/tmp/expected_var_4.txt;
-            echo "expecting var_4='$(cat /tmp/expected_var_4.txt)'";
-            jq -n "${sample_data}" | jq '.' >/tmp/var_4.txt;
-            echo "declared var_4='$(cat /tmp/var_4.txt)'";
-
-            git diff --no-index /tmp/expected_var_0.txt /tmp/var_0.txt;
-            git diff --no-index /tmp/expected_var_1.txt /tmp/var_1.txt;
-            git diff --no-index /tmp/expected_var_2.txt /tmp/var_2.txt;
-            git diff --no-index /tmp/expected_var_3.txt /tmp/var_3.txt;
-            git diff --no-index /tmp/expected_var_4.txt /tmp/var_4.txt;
+            git diff --no-index /tmp/expected_var_0.txt /tmp/received__var_0.txt && 
+            git diff --no-index /tmp/expected_var_1.txt /tmp/received__var_1.txt && 
+            git diff --no-index /tmp/expected_var_2.txt /tmp/received__var_2.txt && 
+            git diff --no-index /tmp/expected_var_3.txt /tmp/received__var_3.txt && 
+            git diff --no-index /tmp/expected_var_4.txt /tmp/received__var_4.txt;

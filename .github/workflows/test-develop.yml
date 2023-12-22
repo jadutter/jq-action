@@ -17,85 +17,127 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: validate tests exist
-        uses: jadutter/jq-action@hotfix/patch-action
+        uses: ./docker/develop/
         id: valid-tests
         with:
           cmd: |
-            if [ ! -d '/tests' ]; then
-              echo "tests directory does not exist " >&2;
-              exit 1
+            if [[ ! -d '/tests' ]]; then
+              echo "::error file=tests,title=Missing tests::the tests directory does not appear to exist!";
+              exit 1;
             fi;
-            if [ ! -f '/tests/sample.json' ]; then
-              echo "'/tests/sample.json' does not exist" >&2;
-              exit 2
+            if [[ ! -f '/tests/sample.json' ]]; then
+              echo "::error file=/tests/sample.json,title=Missing sample.json::'/tests/sample.json' does not exist"
+              exit 2;
             fi;
-            if [ ! -f '/tests/test_bash.sh' ]; then
-              echo "'/tests/test_bash.sh' does not exist" >&2;
-              exit 3
+            if [[ ! -f '/tests/test_bash.sh' ]]; then
+              echo "::error file=/tests/test_bash.sh,title=Missing test_bash.sh::'/tests/test_bash.sh' does not exist"
+              exit 3;
             fi;
-            if [ ! -f '/tests/test_jq.jq' ]; then
-              echo "'/tests/test_jq.jq' does not exist" >&2;
-              exit 4
+            if [[ ! -f '/tests/test_jq.jq' ]]; then
+              echo "::error file=/tests/test_jq.jq,title=Missing test_jq.jq::'/tests/test_jq.jq' does not exist"
+              exit 4;
             fi;
-            if [ ! -x '/tests/test_bash.sh' ]; then
-              echo "'/tests/test_bash.sh' is not executable" >&2;
-              exit 5
+            if [[ ! -x '/tests/test_bash.sh' ]]; then
+              echo "::error file=/tests/test_bash.sh,title=Missing test_bash.sh::'/tests/test_bash.sh' is not executable"
+              exit 5;
             fi;
             echo "tests are ready"
 
       - name: json file from repo
-        uses: jadutter/jq-action@hotfix/patch-action
-        id: test-4
+        uses: ./docker/develop/
+        id: test-json-file-from-repo
         with:
           cmd: >
             jq -c 'keys' ./tests/sample.json
 
-      - name: Check test-4
-        run: >
-          if [[ "$(echo -n "${{ steps.test-4.outputs.stdout }}" )" != "[\"foo\"]" ]]; then 
-            echo "stdout:"
-            echo "${{ steps.test-4.outputs.stdout }}"
-            echo "stderr:"
-            echo "${{ steps.test-4.outputs.stderr }}"
-            echo "exit_code:"
-            echo "${{ steps.test-4.outputs.exit_code }}"
+      - name: Check test-json-file-from-repo
+        run: |
+          (
+          cat << EOF >/tmp/received.txt
+          ${{ steps.test-json-file-from-repo.outputs.stdout }}
+          EOF
+          );
+          (
+          cat << 'EOF' >/tmp/expected.txt
+          ["foo"]
+          EOF
+          );
+
+          git diff --no-index /tmp/received.txt /tmp/expected.txt;
+
+          if [[ $? -gt 0 ]]; then 
+          (
+          cat << 'EOF'
+          stdout:'${{ steps.test-json-file-from-repo.output.stdout }}'
+          stderr:'${{ steps.test-json-file-from-repo.output.stderr }}'
+          exit_code:'${{ steps.test-json-file-from-repo.output.exit_code }}'
+          EOF
+          );
             exit 1
           fi
 
       - name: bash script from repo
-        uses: jadutter/jq-action@hotfix/patch-action
-        id: test-5
+        uses: ./docker/develop/
+        id: test-bash-script-from-repo
         with:
           cmd: >
             ./tests/test_bash.sh
 
-      - name: Check test-5
+      - name: Check test-bash-script-from-repo
         run: >
-          if [[ "${{ steps.test-5.outputs.stdout }}" != "[\"bar\"]" ]]; then 
-            echo "stdout:"
-            echo "${{ steps.test-5.outputs.stdout }}"
-            echo "stderr:"
-            echo "${{ steps.test-5.outputs.stderr }}"
-            echo "exit_code:"
-            echo "${{ steps.test-5.outputs.exit_code }}"
+          (
+          cat << EOF >/tmp/received.txt
+          ${{ steps.test-bash-script-from-repo.outputs.stdout }}
+          EOF
+          );
+          (
+          cat << 'EOF' >/tmp/expected.txt
+          ["bar"]
+          EOF
+          );
+
+          git diff --no-index /tmp/received.txt /tmp/expected.txt;
+
+          if [[ $? -gt 0 ]]; then 
+          (
+          cat << 'EOF'
+          stdout:'${{ steps.test-bash-script-from-repo.output.stdout }}'
+          stderr:'${{ steps.test-bash-script-from-repo.output.stderr }}'
+          exit_code:'${{ steps.test-bash-script-from-repo.output.exit_code }}'
+          EOF
+          );
             exit 1
           fi
 
       - name: jq-module from repo
-        uses: jadutter/jq-action@hotfix/patch-action
-        id: test-6
+        uses: ./docker/develop/
+        id: test-jq-module-from-repo
         with:
           cmd: >
             jq -cn 'include "./tests/test_jq"; sample_function'
 
-      - name: Check test-6
+      - name: Check test-jq-module-from-repo
         run: >
-          if [[ "${{ steps.test-6.outputs.stdout }}" != "[\"foo\",\"bar\"]" ]]; then 
-            echo "stdout:"
-            echo "${{ steps.test-6.outputs.stdout }}"
-            echo "stderr:"
-            echo "${{ steps.test-6.outputs.stderr }}"
-            echo "exit_code:"
-            echo "${{ steps.test-6.outputs.exit_code }}"
+          (
+          cat << EOF >/tmp/received.txt
+          ${{ steps.test-jq-module-from-repo.outputs.stdout }}
+          EOF
+          );
+          (
+          cat << 'EOF' >/tmp/expected.txt
+          ["foo","bar"]
+          EOF
+          );
+
+          git diff --no-index /tmp/received.txt /tmp/expected.txt;
+
+          if [[ $? -gt 0 ]]; then 
+          (
+          cat << 'EOF'
+          stdout:'${{ steps.test-jq-module-from-repo.output.stdout }}'
+          stderr:'${{ steps.test-jq-module-from-repo.output.stderr }}'
+          exit_code:'${{ steps.test-jq-module-from-repo.output.exit_code }}'
+          EOF
+          );
             exit 1
           fi

@@ -86,45 +86,6 @@ jobs:
   job-test-workflow-syntax:
     runs-on: ubuntu-latest
     steps:
-      - name: Print Env Vars
-        run: |
-          (
-          cat << EOF
-          github.actor
-          ${{ github.actor }}
-
-          github.event
-          ${{ github.event }}
-
-          github.event_name
-          ${{ github.event_name }}
-
-          github.githubassets
-          ${{ github.githubassets }}
-
-          github.head_ref
-          ${{ github.head_ref }}
-
-          github.ref
-          ${{ github.ref }}
-
-          github.ref_name
-          ${{ github.ref_name }}
-
-          github.repository
-          ${{ github.repository }}
-
-          github.run_id
-          ${{ github.run_id }}
-
-          github.workflow
-          ${{ github.workflow }}
-
-          github.workspace
-          ${{ github.workspace }}
-
-          EOF
-          );
       - name: Set manual variables
         id: manual-vars
         run: |
@@ -242,7 +203,7 @@ jobs:
 
   # confirm the docker environment we're creating for the action looks the way we expect it to look
   job-test-env:
-    # needs: [job-test-workflow-syntax]
+    needs: [job-test-workflow-syntax]
     runs-on: ubuntu-latest
 
     steps:
@@ -345,7 +306,7 @@ jobs:
 
   # confirm the action itself can be used as expected
   job-test-action:
-    # needs: [job-test-workflow-syntax, job-test-env]
+    needs: [job-test-workflow-syntax, job-test-env]
     runs-on: ubuntu-latest
 
     steps:

@@ -244,8 +244,8 @@ jobs:
 
           (
           cat << 'EOF' >/tmp/received.txt
-          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
-          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+          stdout:'${{ steps.test-use-jq-multiline.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq-multiline.outputs.stderr }}'
           exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
           EOF
           );

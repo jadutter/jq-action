@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: validate tests exist
-        uses: ./docker/develop/
+        uses: ./.github/actions/develop/
         id: valid-tests
         with:
           cmd: |
@@ -44,7 +44,7 @@ jobs:
             echo "tests are ready"
 
       - name: json file from repo
-        uses: ./docker/develop/
+        uses: ./.github/actions/develop/
         id: test-json-file-from-repo
         with:
           cmd: >
@@ -77,7 +77,7 @@ jobs:
           fi
 
       - name: bash script from repo
-        uses: ./docker/develop/
+        uses: ./.github/actions/develop/
         id: test-bash-script-from-repo
         with:
           cmd: >
@@ -110,7 +110,7 @@ jobs:
           fi
 
       - name: jq-module from repo
-        uses: ./docker/develop/
+        uses: ./.github/actions/develop/
         id: test-jq-module-from-repo
         with:
           cmd: >

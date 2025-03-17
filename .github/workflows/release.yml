@@ -46,34 +46,13 @@ jobs:
         run: |
           git push
 
-  sync-develop:
-    name: Sync Develop
-    needs: [create-release]
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - name: Checkout release branch
-        uses: actions/checkout@v4
-        with:
-          ref: release
-          fetch-depth: 0 # Required for getting commit history
-
-      - name: Pull release branch
+      - name: Checkout release
         run: |
-          git pull
-        
-      - name: Checkout develop branch
-        uses: actions/checkout@v4
-        with:
-          ref: release
-          fetch-depth: 0 # Required for getting commit history
+          git checkout release && git pull
 
-      - name: Pull develop branch
+      - name: Checkout develop 
         run: |
-          git pull
+          git checkout develop && git pull
 
       - name: Merge release into develop
         run: |

@@ -1,5 +1,4 @@
 name: 'GitHub-CI: valid image'
-
 on:
   push:
     branches:
@@ -84,8 +83,12 @@ env:
 jobs:
   # confirm the workflow syntax we will use works
   job-test-workflow-syntax:
+    name: Test Workflow Syntax
     runs-on: ubuntu-latest
     steps:
+      - name: Description
+        run: >
+          echo "Make sure the syntax behaves the way we expect before testing our action"
       - name: Set manual variables
         id: manual-vars
         run: |
@@ -200,15 +203,15 @@ jobs:
           git diff --no-index /tmp/expected_sample_var_3.txt /tmp/received_sample_var_3.txt && \
           git diff --no-index /tmp/expected_literal_sample_var.txt /tmp/received_literal_sample_var.txt;
           echo "::endgroup::";
-
   # confirm the docker environment we're creating for the action looks the way we expect it to look
   job-test-env:
-    # needs: [job-test-workflow-syntax]
+    name: Test Environment
     runs-on: ubuntu-latest
-
     steps:
+      - name: Description
+        run: >
+          echo "Check our environment has everything we will need to check our action"
       - uses: actions/checkout@v2
-
       - name: Commit info
         run: >
           echo "hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT;
@@ -306,10 +309,13 @@ jobs:
 
   # confirm the action itself can be used as expected
   job-test-action:
-    # needs: [job-test-workflow-syntax, job-test-env]
+    name: Test Action
+    needs: [job-test-workflow-syntax, job-test-env]
     runs-on: ubuntu-latest
-
     steps:
+      - name: Description
+        run: >
+          echo "Check our custom action behaves how we would expect"
       - uses: actions/checkout@v2
 
       # attempt to use jq in a single line command via jq-action
@@ -339,7 +345,7 @@ jobs:
           );
           git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
-      # attempt to pass in a muliline command to be executed in the jq-action
+      # attempt to pass in a multiline command to be executed in the jq-action
       - name: Use multiline command
         uses: ./
         id: test-use-jq-multiline

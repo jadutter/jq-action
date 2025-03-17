@@ -1,19 +1,16 @@
 name: "GitHub-CI: release tests"
-
 on:
   push:
     branches:
-    - release
+      - release
   pull_request:
     branches:
-    - release
+      - release
 jobs:
   test-action:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
-
       - name: clean directory
         uses: jadutter/jq-action@release
         id: clean-directory

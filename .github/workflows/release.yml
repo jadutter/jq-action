@@ -1,0 +1,63 @@
+name: 'GitHub-CI: Create Release'
+on: 
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release Tag (e.g., v1.2.3)'
+        required: true
+env:
+  GH_TOKEN: ${{ github.token }}
+jobs:
+  create-release:
+    name: Create Release
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0 # Required for getting commit history
+      - name: Configure git
+        run: |
+          git config --global user.email ${{ github.actor }}@users.noreply.github.com
+          git config --global user.name ${{ github.actor }}
+      - name: Add release tag
+        run: |
+          git tag -a ${{ inputs.release_tag }} -m "release ${{ inputs.release_tag }}"
+          git push --tags
+
+      - name: Create release PR
+        run: |
+          gh pr create --head develop --base release --title "chore: cut release" --body "cut release ${{ inputs.release_tag }}" | tee release_pr.txt
+
+      - name: Merge release PR
+        run: |
+          gh pr merge "$(cat release_pr.txt)" -m 
+
+      - name: Publish Release
+        run: |
+          gh release create ${{ inputs.release_tag }} --generate-notes --fail-on-no-commits
+
+      - name: Update develop
+        run: |
+          git push
+
+      - name: Checkout release
+        run: |
+          git checkout release && git pull
+
+      - name: Checkout develop 
+        run: |
+          git checkout develop && git pull
+
+      - name: Merge release into develop
+        run: |
+          git merge release --no-edit
+
+      - name: Push develop branch
+        run: |
+          git push

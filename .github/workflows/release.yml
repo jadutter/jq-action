@@ -22,8 +22,21 @@ jobs:
           ref: develop
           fetch-depth: 0 # Required for getting commit history
 
-      - name: Create Release
+      - name: Add release tag
         run: |
-          gh release create ${{ inputs.release_tag }} --generate-notes --fail-on-no-commits --draft
+          git tag -a ${{ inputs.release_tag }} -m "release ${{ inputs.release_tag }}"
+          git push --tags
+
+      - name: Create release PR
+        run: |
+          gh pr create --title "chore: cut release" --body "cut release ${{ inputs.release_tag }}" | tee release_pr.txt
+
+      - name: Merge release PR
+        run: |
+          gh pr merge "$(cat release_pr.txt)" -m 
+
+      - name: Publish Release
+        run: |
+          gh release create ${{ inputs.release_tag }} --generate-notes --fail-on-no-commits
 
 

@@ -1,0 +1,35 @@
+name: 'GitHub-CI: Create Release'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout develop branch
+        uses: actions/checkout@v3
+        with:
+          ref: develop
+          fetch-depth: 0 # Required for getting commit history
+
+      - name: Check for passing CI on develop
+        run: |
+          # Check for the last workflow run on develop and check that it has succeeded
+          if ! gh api \
+            /repos/${{ github.repository }}/actions/runs \
+            --jq '.workflow_runs[] | select(.head_branch == "develop") | select(.conclusion == "success") | .status' \
+            | grep -q completed; then
+            echo "::error::Latest CI on develop branch failed or is still running. Cannot create release."
+            exit 1
+          fi
+          echo "Latest CI on develop branch passed."
+
+      - name: Create Release
+        run: |
+          gh release create --generate-notes --fail-on-no-commits --draft
+
+

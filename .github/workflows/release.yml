@@ -1,5 +1,10 @@
 name: 'GitHub-CI: Create Release'
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release Tag (e.g., v1.2.3)'
+        required: true
 env:
   GH_TOKEN: ${{ github.token }}
 jobs:
@@ -19,6 +24,6 @@ jobs:
 
       - name: Create Release
         run: |
-          gh release create --generate-notes --fail-on-no-commits --draft
+          gh release create ${{ inputs.release_tag }} --generate-notes --fail-on-no-commits --draft
 
 

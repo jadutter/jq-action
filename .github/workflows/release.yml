@@ -17,10 +17,15 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout develop branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: develop
           fetch-depth: 0 # Required for getting commit history
+
+      - name: Configure git
+        run: |
+          git config --global user.email ${{ github.actor }}@users.noreply.github.com
+          git config --global user.name ${{ github.actor }}
 
       - name: Add release tag
         run: |

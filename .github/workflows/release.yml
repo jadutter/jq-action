@@ -1,8 +1,6 @@
 name: 'GitHub-CI: Create Release'
 
-on:
-  workflow_dispatch:
-  workflow_call:
+on: workflow_dispatch
 
 jobs:
   create-release:

@@ -34,7 +34,7 @@ jobs:
 
       - name: Create release PR
         run: |
-          gh pr create --title "chore: cut release" --body "cut release ${{ inputs.release_tag }}" | tee release_pr.txt
+          gh pr create --head develop --base release --title "chore: cut release" --body "cut release ${{ inputs.release_tag }}" | tee release_pr.txt
 
       - name: Merge release PR
         run: |

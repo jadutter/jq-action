@@ -8,7 +8,8 @@ on:
 env:
   GH_TOKEN: ${{ github.token }}
 jobs:
-  create-release:
+  setup-release:
+    name: Setup
     # only run the job if the trigger was from the develop branch
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
@@ -21,12 +22,25 @@ jobs:
         with:
           ref: develop
           fetch-depth: 0 # Required for getting commit history
-
       - name: Configure git
         run: |
           git config --global user.email ${{ github.actor }}@users.noreply.github.com
           git config --global user.name ${{ github.actor }}
 
+  create-release:
+    name: Create Release
+    needs: [setup-release]
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0 # Required for getting commit history
       - name: Add release tag
         run: |
           git tag -a ${{ inputs.release_tag }} -m "release ${{ inputs.release_tag }}"
@@ -44,4 +58,43 @@ jobs:
         run: |
           gh release create ${{ inputs.release_tag }} --generate-notes --fail-on-no-commits
 
+      - name: Update develop
+        run: |
+          git push
 
+  sync-develop:
+    name: Sync Develop
+    needs: [setup-release]
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout release branch
+        uses: actions/checkout@v4
+        with:
+          ref: release
+          fetch-depth: 0 # Required for getting commit history
+
+      - name: Pull release branch
+        run: |
+          git pull
+        
+      - name: Checkout develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: release
+          fetch-depth: 0 # Required for getting commit history
+
+      - name: Pull develop branch
+        run: |
+          git pull
+
+      - name: Merge release into develop
+        run: |
+          git merge release --no-edit
+
+      - name: Push develop branch
+        run: |
+          git push

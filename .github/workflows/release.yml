@@ -8,9 +8,8 @@ on:
 env:
   GH_TOKEN: ${{ github.token }}
 jobs:
-  setup-release:
-    name: Setup
-    # only run the job if the trigger was from the develop branch
+  create-release:
+    name: Create Release
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     permissions:
@@ -26,21 +25,6 @@ jobs:
         run: |
           git config --global user.email ${{ github.actor }}@users.noreply.github.com
           git config --global user.name ${{ github.actor }}
-
-  create-release:
-    name: Create Release
-    needs: [setup-release]
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - name: Checkout develop branch
-        uses: actions/checkout@v4
-        with:
-          ref: develop
-          fetch-depth: 0 # Required for getting commit history
       - name: Add release tag
         run: |
           git tag -a ${{ inputs.release_tag }} -m "release ${{ inputs.release_tag }}"
@@ -64,7 +48,7 @@ jobs:
 
   sync-develop:
     name: Sync Develop
-    needs: [setup-release]
+    needs: [create-release]
     if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     permissions:

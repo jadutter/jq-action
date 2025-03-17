@@ -1,5 +1,7 @@
 name: 'GitHub-CI: Create Release'
 on: workflow_dispatch
+env:
+  GH_TOKEN: ${{ github.token }}
 jobs:
   create-release:
     # only run the job if the trigger was from the develop branch

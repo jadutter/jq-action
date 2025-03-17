@@ -28,14 +28,12 @@ jobs:
       - name: Check for passing CI on develop
         run: |
           # Check for the last workflow run on develop and check that it has succeeded
-          if ! gh api \
-            /repos/${{ github.repository }}/actions/runs \
-            --jq '.workflow_runs[] | select(.head_branch == "develop") | select(.conclusion == "success") | .status' \
-            | grep -q completed; then
+          if ! gh api /repos/${{ github.repository }}/actions/runs --jq '.workflow_runs[] | select(.head_branch == "develop") | select(.conclusion == "success") | .status' | grep -q completed; then
             echo "::error::Latest CI on develop branch failed or is still running. Cannot create release."
             exit 1
+          else
+            echo "Latest CI on develop branch passed."
           fi
-          echo "Latest CI on develop branch passed."
 
       - name: Create Release
         run: |

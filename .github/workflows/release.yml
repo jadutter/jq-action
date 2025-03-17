@@ -1,17 +1,5 @@
 name: 'GitHub-CI: Create Release'
-on: 
-  workflow_dispatch:
-    inputs:
-      release_tag:
-        description: 'Release Tag (e.g., v1.2.3)'
-        required: true
-      release_name:
-        description: 'Release Name (e.g., Release 1.2.3)'
-        required: true
-      release_body:
-        description: 'Release Body/Description'
-        required: false
-        default: ''
+on: workflow_dispatch
 jobs:
   create-release:
     runs-on: ubuntu-latest

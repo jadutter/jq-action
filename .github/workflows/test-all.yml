@@ -1,4 +1,4 @@
-name: "GitHub-CI: valid image"
+name: 'GitHub-CI: valid image'
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   pull_request: {}
   # execute these tests on every branch, to confirm the branch's HEAD can be used as a github action
 env:
-  sample_data: >
+  sample_data: |
     {
       "types": {
         "null": null,
@@ -18,165 +18,192 @@ env:
           "single": "lorem",
           "cost": "$1.99",
           "percentage": "99.99% complete",
-          "multiline": "Task:\n\t100% complete"
+          "multiline": "Task:\n  100% complete"
         },
         "array": [],
         "object": {}
       }
     }
-jobs:
-  # confirm we know how to properly escape the data that goes into set-output variables
-  job-test-workflow-syntax:
-    env:
-      sample_var_0: "9"
-      sample_var_1: >
-        [
-          "types",
-          "number"
-          ]
-        [
-          "types",
-          "strings",
-          "single"
-          ]
-        [
-          "types",
-          "strings",
-          "cost"
-          ]
-        [
-          "types",
-          "strings",
-          "percentage"
-          ]
-        [
-          "types",
-          "strings",
-          "multiline"
-        ]
-
-      sample_var_2: >
-        {"types":{"null":null,"boolean":false,"number":123,"strings":{"single":"lorem","cost":"$1.99"}
-      sample_var_3: >
+  sample_var_0: '9'
+  sample_var_1: |
+    [
+      "types",
+      "number"
+      ]
+    [
+      "types",
+      "strings",
+      "single"
+      ]
+    [
+      "types",
+      "strings",
+      "cost"
+      ]
+    [
+      "types",
+      "strings",
+      "percentage"
+      ]
+    [
+      "types",
+      "strings",
+      "multiline"
+    ]
+  sample_var_2: |
+    {"types":{"null":null,"boolean":false,"number":123,"strings":{"single":"lorem","cost":"$1.99"}}}
+  sample_var_3: |
+    {
+      "types": {
+        "null": null,
+        "boolean": false,
+        "number": 123,
+        "strings": {
+          "single": "lorem",
+          "cost": "$1.99",
+          "percentage": "99.99% complete",
+          "multiline": "Task:\n  100% complete"
+        },
+        "array": [],
+        "object": {}
+      },
+      "array": [
+        null,
+        false,
+        123,
         {
-          "types": {
-            "null": null,
-            "boolean": false,
-            "number": 123,
-            "strings": {
-              "single": "lorem",
-              "cost": "$1.99",
-              "percentage": "99.99% complete",
-              "multiline": "Task:
-          100% complete"
-            },
-            "array": [],
-            "object": {}
-          },
-          "array": [
-            null,
-            false,
-            123,
-            {
-              "single": "lorem",
-              "cost": "$1.99",
-              "percentage": "99.99% complete",
-              "multiline": "Task:\n\t100% complete"
-            },
-            [],
-            {}
-          ]
-        }
-        Task:
-          100% complete
+          "single": "lorem",
+          "cost": "$1.99",
+          "percentage": "99.99% complete",
+          "multiline": "Task:\n  100% complete"
+        },
+        [],
+        {}
+      ]
+    }
+jobs:
+  # confirm the workflow syntax we will use works
+  job-test-workflow-syntax:
     runs-on: ubuntu-latest
     steps:
-      - name: Manually set-output variables
+      - name: Set manual variables
         id: manual-vars
-        run: >
-          sample_var_0="$( echo -e "${{ env.sample_var_0 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_1="$( echo -e "${{ env.sample_var_1 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_2="$( echo -e "${{ env.sample_var_2 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_3="$( echo -e "${{ env.sample_var_3 }}" | sed -E 's/"/\\"/g' )";
-          sed_command="$(
-            echo -e "
-                :nextLine;
-                # if not the end of the file
-                \$!{
-                  # add the next line to the pattern space
-                  N;
-                  # grab another line
-                  b nextLine;
-                }
-                # escape backslash characters
-                s/\\\\\\/\\\\\\\\\\\\\\/g;
+        run: |
+          echo "::group::Declare Samples";
+          sample_var_0='${{ env.sample_var_0 }}';
+          sample_var_1='${{ env.sample_var_1 }}';
+          sample_var_2='${{ env.sample_var_2 }}';
+          sample_var_3='${{ env.sample_var_3 }}';
 
-                # escape percentage sign
-                s/%/%25/g;
+          echo "::group::Output Samples";
+          (
+          cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+          sample_var_0<<EOF
+          ${sample_var_0}
+          EOF
+          EOF_GITHUB_OUTPUT
+          );
 
-                # esape newline characters
-                s/\\\n/%0A/g;
-                s/\\\r/%0D/g;
+          (
+          cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+          sample_var_1<<EOF
+          ${sample_var_1}
+          EOF
+          EOF_GITHUB_OUTPUT
+          );
 
-                # escape double quotes
-                s/\\\"/\\\\\\\\\\\"/g;
+          (
+          cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+          sample_var_2<<EOF
+          ${sample_var_2}
+          EOF
+          EOF_GITHUB_OUTPUT
+          );
 
-                # escape dollar sign
-                s/\\\\\$/\\\\\\\\\$/g;
-                ";
-              )";
-          echo "declared sed_command";
+          (
+          cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+          sample_var_3<<EOF
+          ${sample_var_3}
+          EOF
+          EOF_GITHUB_OUTPUT
+          );
 
-          esc_sample_var_0="$( echo "${sample_var_0}" | sed -E "${sed_command}" || echo "SED COMMAND FAILED")";
-          echo "    sample_var_0:'${sample_var_0}'";
-          echo "esc_sample_var_0:'${esc_sample_var_0}'";
-          echo "::set-output name=sample_var_0::${esc_sample_var_0}";
+          (
+          cat << 'EOF_GITHUB_OUTPUT' >> $GITHUB_OUTPUT
+          literal_sample_var<<EOF
+          $1.99
+          EOF
+          EOF_GITHUB_OUTPUT
+          );
+          echo "::endgroup::";
 
-          esc_sample_var_1="$( echo "${sample_var_1}" | sed -E "${sed_command}" || echo "SED COMMAND FAILED")";
-          echo "    sample_var_1:'${sample_var_1}'";
-          echo "esc_sample_var_1:'${esc_sample_var_1}'";
-          echo "::set-output name=sample_var_1::${esc_sample_var_1}";
+      - name: Check manual variables
+        run: |
+          echo "::group::Declare Expectations";
+          (
+          cat << EOF >/tmp/expected_sample_var_0.txt;
+          ${{ env.sample_var_0 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/expected_sample_var_1.txt;
+          ${{ env.sample_var_1 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/expected_sample_var_2.txt;
+          ${{ env.sample_var_2 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/expected_sample_var_3.txt;
+          ${{ env.sample_var_3 }}
+          EOF
+          );
 
-          esc_sample_var_2="$( echo "${sample_var_2}" | sed -E "${sed_command}" || echo "SED COMMAND FAILED")";
-          echo "    sample_var_2:'${sample_var_2}'";
-          echo "esc_sample_var_2:'${esc_sample_var_2}'";
-          echo "::set-output name=sample_var_2::${esc_sample_var_2}";
+          literal_sample_var='$1.99'
+          (
+          cat << EOF >/tmp/expected_literal_sample_var.txt;
+          ${literal_sample_var}
+          EOF
+          );
+          echo "::endgroup::";
 
-          esc_sample_var_3="$( echo "${sample_var_3}" | sed -E "${sed_command}" || echo "SED COMMAND FAILED")";
-          echo "    sample_var_3:'${sample_var_3}'";
-          echo "esc_sample_var_3:'${esc_sample_var_3}'";
-          echo "::set-output name=sample_var_3::${esc_sample_var_3}";
+          echo "::group::Receive results";
+          (
+          cat << EOF >/tmp/received_sample_var_0.txt
+          ${{ steps.manual-vars.outputs.sample_var_0 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/received_sample_var_1.txt
+          ${{ steps.manual-vars.outputs.sample_var_1 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/received_sample_var_2.txt
+          ${{ steps.manual-vars.outputs.sample_var_2 }}
+          EOF
+          );
+          (
+          cat << EOF >/tmp/received_sample_var_3.txt
+          ${{ steps.manual-vars.outputs.sample_var_3 }}
+          EOF
+          );
+          echo '${{ steps.manual-vars.outputs.literal_sample_var }}' >/tmp/received_literal_sample_var.txt;
+          echo "::endgroup::";
 
-      - name: Check manual set-output
-        run: >
-          sample_var_0="$( echo -e "${{ env.sample_var_0 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_1="$( echo -e "${{ env.sample_var_1 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_2="$( echo -e "${{ env.sample_var_2 }}" | sed -E 's/"/\\"/g' )";
-          sample_var_3="$( echo -e "${{ env.sample_var_3 }}" | sed -E 's/"/\\"/g' )";
-          if [[ "$( echo "${{ steps.manual-vars.outputs.sample_var_0 }}" )" != "$( echo "${sample_var_0}" )" ]]; then
-            printf "Invalid sample_var_0:\n    expected:'%s'\n    received: '%s'\n" "${sample_var_0}" "${{ steps.manual-vars.outputs.sample_var_0 }}"
-            diff <(echo -e "${sample_var_0}") <(echo -e "${{ steps.manual-vars.outputs.sample_var_0 }}" )
-            exit 1
-          fi;
-          if [[ "$( echo "${{ steps.manual-vars.outputs.sample_var_1 }}" )" != "$( echo "${sample_var_1}" )" ]]; then
-            printf "Invalid sample_var_1:\n    expected:'%s'\n    received: '%s'\n" "${sample_var_1}" "${{ steps.manual-vars.outputs.sample_var_1 }}"
-            diff <(echo -e "${sample_var_1}") <(echo -e "${{ steps.manual-vars.outputs.sample_var_1 }}" )
-            exit 1
-          fi;
-          if [[ "$( echo "${{ steps.manual-vars.outputs.sample_var_2 }}" )" != "$( echo "${sample_var_2}" )" ]]; then
-            printf "Invalid sample_var_2:\n    expected:'%s'\n    received: '%s'\n" "${sample_var_2}" "${{ steps.manual-vars.outputs.sample_var_2 }}"
-            diff <(echo -e "${sample_var_2}") <(echo -e "${{ steps.manual-vars.outputs.sample_var_2 }}" )
-            exit 1
-          fi;
-          if [[ "$( echo "${{ steps.manual-vars.outputs.sample_var_3 }}" )" != "$( echo "${sample_var_3}" )" ]]; then
-            printf "Invalid sample_var_3:\n    expected:'%s'\n    received: '%s'\n" "${sample_var_3}" "${{ steps.manual-vars.outputs.sample_var_3 }}"
-            diff <(echo -e "${sample_var_3}") <(echo -e "${{ steps.manual-vars.outputs.sample_var_3 }}" )
-            exit 1
-          fi;
+          echo "::group::Compare results";
+          git diff --no-index /tmp/expected_sample_var_0.txt /tmp/received_sample_var_0.txt && \
+          git diff --no-index /tmp/expected_sample_var_1.txt /tmp/received_sample_var_1.txt && \
+          git diff --no-index /tmp/expected_sample_var_2.txt /tmp/received_sample_var_2.txt && \
+          git diff --no-index /tmp/expected_sample_var_3.txt /tmp/received_sample_var_3.txt && \
+          git diff --no-index /tmp/expected_literal_sample_var.txt /tmp/received_literal_sample_var.txt;
+          echo "::endgroup::";
 
   # confirm the docker environment we're creating for the action looks the way we expect it to look
   job-test-env:
-    needs: [job-test-workflow-syntax]
+    # needs: [job-test-workflow-syntax]
     runs-on: ubuntu-latest
 
     steps:
@@ -184,111 +211,200 @@ jobs:
 
       - name: Commit info
         run: >
-          echo "::set-output name=hash::$(git rev-parse HEAD)";
-          echo "::set-output name=name::$(git rev-parse --abbrev-ref HEAD)";
+          echo "hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT;
+          echo "name=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT;
 
       - name: Validate entrypoint
-        uses: jadutter/jq-action@develop
+        uses: ./
         id: valid-entrypoint
         with:
-          cmd: >
+          cmd: |
             if [ ! -f '/entrypoint.sh' ]; then
-              echo "forgot to add entrypoint.sh" >&2
+              echo "::error file=entrypoint.sh,title=Missing entrypoint.sh::entrypoint.sh does not appear to exist!";
               exit 1
             elif [ ! -x '/entrypoint.sh' ]; then
-              echo "forgot to make entrypoint.sh executable" >&2
+              echo "::error file=entrypoint.sh,title=Unusable entrypoint.sh::entrypoint.sh does not appear to be executable!";
               exit 2
             fi;
-            echo "entrypoint is valid"
+            echo "entrypoint.sh appears to be valid"
 
       - name: Get jq version
-        uses: jadutter/jq-action@develop
-        id: version
+        uses: ./
+        id: get-jq-version
         with:
-          cmd: "jq --version"
+          cmd: 'jq --version'
 
-      - name: Check version
-        run: >
-          jq_version="$(echo "${{ steps.version.outputs.stdout }}" | egrep -o 'jq-.+' )";
+      - name: Check jq version
+        run: |
+          jq_version="$(
+            echo "${{ steps.get-jq-version.outputs.stdout }}" | egrep -o 'jq-.+' 
+          )";
+
           if [[ "${#jq_version}" -gt 3 ]]; then
-            echo "jq version is '${jq_version}'"
+            echo "jq version is '${jq_version}'";
           else
-            echo "stdout:"
-            echo "${{ steps.version.outputs.stdout }}"
-            echo "stderr:"
-            echo "${{ steps.version.outputs.stderr }}"
-            echo "exit_code:"
-            echo "${{ steps.version.outputs.exit_code }}"
-            exit 1
+          (
+          cat << 'EOF'
+          stdout:'${{ steps.get-jq-version.output.stdout }}'
+          stderr:'${{ steps.get-jq-version.output.stderr }}'
+          exit_code:'${{ steps.get-jq-version.output.exit_code }}'
+          EOF
+          );
+          exit 1;
+          fi
+
+      - name: Get git version
+        uses: ./
+        id: get-git-version
+        with:
+          cmd: 'git --version'
+
+      - name: Check git version
+        run: |
+          git_version="${{ steps.get-git-version.outputs.stdout }}";
+
+          if [[ "${#git_version}" -gt 3 ]]; then
+            echo "git version is '${git_version}'"
+          else
+          (
+          cat << 'EOF'
+          stdout:'${{ steps.get-git-version.output.stdout }}'
+          stderr:'${{ steps.get-git-version.output.stderr }}'
+          exit_code:'${{ steps.get-git-version.output.exit_code }}'
+          EOF
+          );
+          exit 1;
+          fi
+
+      - name: Get bash version
+        uses: ./
+        id: get-bash-version
+        with:
+          cmd: |
+            /bin/bash -c 'echo "$(
+              echo ${BASH_VERSINFO[@]:0:4} | sed -E "s, +\$,,g;" | tr " " "."
+            )$(
+              echo ${BASH_VERSINFO[@]:4:2} | sed -E "s, +\$,,g; s,^(.),-\1,g;" |tr " " "-" 
+            )";'
+
+      - name: Check bash version
+        run: |
+          bash_version="${{ steps.get-bash-version.outputs.stdout }}";
+
+          if [[ "${#bash_version}" -gt 3 ]]; then
+            echo "bash version is '${bash_version}'"
+          else
+          (
+          cat << 'EOF'
+          stdout:'${{ steps.get-bash-version.output.stdout }}'
+          stderr:'${{ steps.get-bash-version.output.stderr }}'
+          exit_code:'${{ steps.get-bash-version.output.exit_code }}'
+          EOF
+          );
+          exit 1;
           fi
 
   # confirm the action itself can be used as expected
   job-test-action:
-    needs: [job-test-workflow-syntax, job-test-env]
+    # needs: [job-test-workflow-syntax, job-test-env]
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
 
-      - name: use jq
-        uses: jadutter/jq-action@develop
+      # attempt to use jq in a single line command via jq-action
+      - name: Use jq
+        uses: ./
         id: test-use-jq
         with:
           cmd: 'jq -cn "{foo:\"bar\"} | [.foo]" '
 
-      - name: Check usage
-        run: >
-          if [[ ! "${{ steps.test-use-jq.outputs.stdout }}" == "[\"bar\"]" ]]; then 
-            echo "stdout:"
-            echo "${{ steps.test-use-jq.outputs.stdout }}"
-            echo "stderr:"
-            echo "${{ steps.test-use-jq.outputs.stderr }}"
-            echo "exit_code:"
-            echo "${{ steps.test-use-jq.outputs.exit_code }}"
-            exit 1
-          fi
+      # confirm the jq-action allows us to access the stderr, stdout, and exit code
+      # for the command we executed within the jq-action container
+      - name: Check jq usage
+        run: |
+          (
+          cat << 'EOF' >/tmp/expected.txt
+          stdout:'["bar"]'
+          stderr:''
+          exit_code:'0'
+          EOF
+          );
+          (
+          cat << 'EOF' >/tmp/received.txt
+          stdout:'${{ steps.test-use-jq.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          EOF
+          );
+          git diff --no-index  /tmp/expected.txt /tmp/received.txt;
 
-      - name: multi-line command
-        uses: jadutter/jq-action@develop
-        id: test-use-jq-multi-line
+      # attempt to pass in a muliline command to be executed in the jq-action
+      - name: Use multiline command
+        uses: ./
+        id: test-use-jq-multiline
         with:
-          # use YAML folded style for multi-line command
+          # use YAML folded style for multiline command
           cmd: >
-            echo '{"foo":"bar"}' | 
+            echo '{"foo":"bar"}' |
             jq '.foo == "bar"'
 
-      - name: Check multiline usage
-        run: >
-          if [[ "$( echo "${{ steps.test-use-jq-multi-line.outputs.stdout }}" )" != "$(echo "true" )" ]]; then 
-            echo "stdout:"
-            echo "${{ steps.test-use-jq-multi-line.outputs.stdout }}"
-            echo "stderr:"
-            echo "${{ steps.test-use-jq-multi-line.outputs.stderr }}"
-            echo "exit_code:"
-            echo "${{ steps.test-use-jq-multi-line.outputs.exit_code }}"
-            exit 1
-          fi
+      # confirm the jq-action allows us to access the stderr, stdout, and exit code
+      # for the command we executed within the jq-action container
+      - name: Check multiline command
+        run: |
+          (
+          cat << 'EOF' >/tmp/expected.txt
+          stdout:'true'
+          stderr:''
+          exit_code:'0'
+          EOF
+          );
+          (
+          cat << 'EOF' >/tmp/received.txt
+          stdout:'${{ steps.test-use-jq-multiline.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq-multiline.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
+          EOF
+          );
 
-      - name: multi-line input and output
-        uses: jadutter/jq-action@develop
+          git diff --no-index  /tmp/expected.txt /tmp/received.txt;
+
+      # attempt to use jq in a way that would produce an error
+      - name: Cause jq
+        uses: ./
+        id: test-cause-jq-error
+        continue-on-error: true
+        with:
+          # we get the value of 'foo', so that returns 'baz';
+          # we cannot access the value of 'baz' on a string,
+          # so it should throw an error
+          cmd: 'jq -cn "{foo:\"bar\"} | [.foo.baz]" '
+
+      # confirm the jq-action allows us to access the stderr, stdout, and exit code
+      # for the command we executed within the jq-action container
+      - name: Check jq error
+        run: |
+          cat << 'EOF' >/tmp/expected.txt
+          stdout:''
+          stderr:'jq: error (at <unknown>): Cannot index string with string "baz"'
+          exit_code:'5'
+          EOF
+          cat << 'EOF' >/tmp/received.txt
+          stdout:'${{ steps.test-cause-jq-error.outputs.stdout }}'
+          stderr:'${{ steps.test-cause-jq-error.outputs.stderr }}'
+          exit_code:'${{ steps.test-cause-jq-error.outputs.exit_code }}'
+          EOF
+          git diff --no-index  /tmp/expected.txt /tmp/received.txt;
+
+      # attempt to use a multiline command in the jq-action that should
+      # return a multiline result
+      - name: Use multiline input and output
+        uses: ./
         id: test-use-jq-multi-input-output
         with:
           cmd: >
-            jq -n '{
-              types: {
-                null: null,
-                boolean: false,
-                number: 123,
-                strings: {
-                  single: "lorem",
-                  cost: "$1.99",
-                  percentage: "99.99% complete",
-                  multiline: "Task:\n\t100% complete"
-                },
-                array: [],
-                object: {}
-              }
-            }' | 
+            jq -n '${{ env.sample_data }}' |
             jq -r '
                 [
                     {
@@ -301,123 +417,159 @@ jobs:
                 ] | .[]
             '
 
-      - name: Check multiline input and output usage
-        run: >
-          expect="$( echo "{\n  \"types\": {\n    \"null\": null,\n    \"boolean\": false,\n    \"number\": 123,\n    \"strings\": {\n      \"single\": \"lorem\",\n      \"cost\": \"\$1.99\",\n      \"percentage\": \"99.99% complete\",\n      \"multiline\": \"Task:\n\t100% complete\"\n    },\n    \"array\": [],\n    \"object\": {}\n  },\n  \"array\": [\n    null,\n    false,\n    123,\n    {\n      \"single\": \"lorem\",\n      \"cost\": \"\$1.99\",\n      \"percentage\": \"99.99% complete\",\n      \"multiline\": \"Task:\\n\\t100% complete\"\n    },\n    [],\n    {}\n  ]\n}\nTask:\n\t100% complete" )";
-          if [[ "$( echo -e "${{ steps.test-use-jq-multi-input-output.outputs.stdout }}" )" != "$( echo -e "${expect}" )" ]]; then 
-            printf "Unexpected output:\n    expected:'%s'\n    received: '%s'\n" "${expect}" "${{ steps.test-use-jq-multi-input-output.outputs.stdout }}"
-            diff <(echo -e "${expect}" ) <(echo -e "${{ steps.test-use-jq-multi-input-output.outputs.stdout }}" )
-            exit 1
-          fi
+      # confirm we can receive the muliline output we are expecting
+      - name: Check multiline input and output
+        run: |
+          (
+          cat << 'EOF' >/tmp/expected.txt
+          stdout:'{
+            "types": {
+              "null": null,
+              "boolean": false,
+              "number": 123,
+              "strings": {
+                "single": "lorem",
+                "cost": "$1.99",
+                "percentage": "99.99% complete",
+                "multiline": "Task:\n  100% complete"
+              },
+              "array": [],
+              "object": {}
+            },
+            "array": [
+              null,
+              false,
+              123,
+              {
+                "single": "lorem",
+                "cost": "$1.99",
+                "percentage": "99.99% complete",
+                "multiline": "Task:\n  100% complete"
+              },
+              [],
+              {}
+            ]
+          }
+          Task:
+            100% complete'
+          stderr:''
+          exit_code:'0'
+          EOF
+          );
+          (
+          cat << 'EOF' >/tmp/received.txt
+          stdout:'${{ steps.test-use-jq-multi-input-output.outputs.stdout }}'
+          stderr:'${{ steps.test-use-jq-multi-input-output.outputs.stderr }}'
+          exit_code:'${{ steps.test-use-jq-multi-input-output.outputs.exit_code }}'
+          EOF
+          );
+          git diff --no-index /tmp/expected.txt /tmp/received.txt;
 
-      - name: Manually set-output variables
-        uses: jadutter/jq-action@develop
+      # attempt to set arbitary variables within the jq-action container
+      - name: Use manual variables
+        uses: ./
         id: manual-vars-jq
         with:
-          cmd: >
-            echo "declared data='${data}'";
-            sed_command="$( 
-              echo -e "
-                  :nextLine;
-                  # if not the end of the file
-                  \$!{
-                    # add the next line to the pattern space
-                    N;
-                    # grab another line
-                    b nextLine;
-                  }
-                  # escape backslash characters
-                  s/\\\\\\/\\\\\\\\\\\\\\/g;
-
-                  # escape percentage sign
-                  s/%/%25/g;
-
-                  # esape newline characters
-                  s/\\\n/%0A/g;
-                  s/\\\r/%0D/g;
-
-                  # escape double quotes
-                  s/\\\"/\\\\\\\\\\\"/g;
-
-                  # escape dollar sign
-                  s/\\\\\$/\\\\\\\\\$/g;
-                  ";
-                )";
-            echo "declared sed_command";
-            sample_data="$( echo -e "${{ env.sample_data }}" | sed -E 's/"/\\"/g' )";
-            echo "declared sample_data";
-
-            var_0="$( jq -n '${sample_data}' | jq 'paths | length' )";
-            echo "declared var_0='${var_0}'";
-            var_0="$( echo -e ${var_0} | sed -E "${sed_command}" || echo "SED COMMAND FAILED" )";
-            echo "::set-output name=var_0::${var_0}";
-            echo "set var_0";
-
-            var_1="$( jq -n '${sample_data}' | jq 'paths' )";
-            echo "declared var_1='${var_1}'";
-            var_1="$( echo -e ${var_1} | sed -E "${sed_command}" || echo "SED COMMAND FAILED" )";
-            echo "::set-output name=var_1::${var_1}";
-            echo "set var_1";
-
-            var_2="$( jq -n '${sample_data}' | jq 'paths(scalars)' )";
-            echo "declared var_2='${var_2}'";
-            var_2="$( echo -e ${var_2} | sed -E "${sed_command}" || echo "SED COMMAND FAILED" )";
-            echo "::set-output name=var_2::${var_2}";
-            echo "set var_2";
-
-            var_3="$( jq -n '${sample_data}' | jq 'to_entries' )";
-            echo "declared var_3='${var_3}'";
-            var_3="$( echo -e ${var_3} | sed -E "${sed_command}" || echo "SED COMMAND FAILED" )";
-            echo "::set-output name=var_3::${var_3}";
-            echo "set var_3";
-
-            var_4="$( jq -n '${sample_data}' | jq '.' )";
-            echo "declared var_4='${var_4}'";
-            var_4="$( echo -e ${var_4} | sed -E "${sed_command}" || echo "SED COMMAND FAILED" )";
-            echo "::set-output name=var_4::${var_4}";
-            echo "set var_4";
-
-      - name: Check manual set-output
-        uses: jadutter/jq-action@develop
-        with:
-          cmd: >
-            sample_data="$( echo -e "${{ env.sample_data }}" | sed -E 's/"/\\"/g' )";
-            echo "declared sample_data";
+          cmd: |
+            sample_data='${{ env.sample_data }}';
+            echo "declared sample_data='${sample_data}'";
 
             var_0="$( jq -n "${sample_data}" | jq 'paths | length' )";
             echo "declared var_0='${var_0}'";
 
+            (
+            cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+            var_0<<EOF
+            ${var_0}
+            EOF
+            EOF_GITHUB_OUTPUT
+            );
+            echo "set var_0";
+
             var_1="$( jq -n "${sample_data}" | jq 'paths' )";
             echo "declared var_1='${var_1}'";
+            (
+            cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+            var_1<<EOF
+            ${var_1}
+            EOF
+            EOF_GITHUB_OUTPUT
+            );
+            echo "set var_1";
 
             var_2="$( jq -n "${sample_data}" | jq 'paths(scalars)' )";
             echo "declared var_2='${var_2}'";
+            (
+            cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+            var_2<<EOF
+            ${var_2}
+            EOF
+            EOF_GITHUB_OUTPUT
+            );
+            echo "set var_2";
 
             var_3="$( jq -n "${sample_data}" | jq 'to_entries' )";
             echo "declared var_3='${var_3}'";
+            (
+            cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+            var_3<<EOF
+            ${var_3}
+            EOF
+            EOF_GITHUB_OUTPUT
+            );
+            echo "set var_3";
 
             var_4="$( jq -n "${sample_data}" | jq '.' )";
             echo "declared var_4='${var_4}'";
+            (
+            cat << EOF_GITHUB_OUTPUT >> $GITHUB_OUTPUT
+            var_4<<EOF
+            ${var_4}
+            EOF
+            EOF_GITHUB_OUTPUT
+            );
+            echo "set var_4";
 
+      # Check the output of the manually set variables matches our expectations
+      - name: Check manual variables
+        run: |
+          sample_data='${{ env.sample_data }}';
+          echo "declared sample_data='${sample_data}'";
 
-            if [[ "$( echo "${{ steps.manual-vars-jq.outputs.var_0 }}" )" != "$( echo "${var_0}" )" ]]; then 
-              printf "Invalid var_0:\n    expected:'%s'\n    received: '%s'\n" "${var_0}" "${{ steps.manual-vars-jq.outputs.var_0 }}"
-              diff <(echo -e "${var_0}") <(echo -e "${{ steps.manual-vars-jq.outputs.var_0 }}" )
-              exit 1
-            elif [[ "$( echo "${{ steps.manual-vars-jq.outputs.var_1 }}" )" != "$( echo "${var_1}" )" ]]; then 
-              printf "Invalid var_1:\n    expected:'%s'\n    received: '%s'\n" "${var_1}" "${{ steps.manual-vars-jq.outputs.var_1 }}"
-              diff <(echo -e "${var_1}") <(echo -e "${{ steps.manual-vars-jq.outputs.var_1 }}" )
-              exit 1
-            elif [[ "$( echo "${{ steps.manual-vars-jq.outputs.var_2 }}" )" != "$( echo "${var_2}" )" ]]; then 
-              printf "Invalid var_2:\n    expected:'%s'\n    received: '%s'\n" "${var_2}" "${{ steps.manual-vars-jq.outputs.var_2 }}"
-              diff <(echo -e "${var_2}") <(echo -e "${{ steps.manual-vars-jq.outputs.var_2 }}" )
-              exit 1
-            elif [[ "$( echo "${{ steps.manual-vars-jq.outputs.var_3 }}" )" != "$( echo "${var_3}" )" ]]; then 
-              printf "Invalid var_3:\n    expected:'%s'\n    received: '%s'\n" "${var_3}" "${{ steps.manual-vars-jq.outputs.var_3 }}"
-              diff <(echo -e "${var_3}") <(echo -e "${{ steps.manual-vars-jq.outputs.var_3 }}" )
-              exit 1
-            elif [[ "$( echo "${{ steps.manual-vars-jq.outputs.var_4 }}" )" != "$( echo "${var_4}" )" ]]; then 
-              printf "Invalid var_4:\n    expected:'%s'\n    received: '%s'\n" "${var_4}" "${{ steps.manual-vars-jq.outputs.var_4 }}"
-              diff <(echo -e "${var_4}") <(echo -e "${{ steps.manual-vars-jq.outputs.var_4 }}" )
-              exit 1
-            fi;
+          jq -n "${sample_data}" | jq 'paths | length' >/tmp/expected_var_0.txt;
+          jq -n "${sample_data}" | jq 'paths' >/tmp/expected_var_1.txt;
+          jq -n "${sample_data}" | jq 'paths(scalars)' >/tmp/expected_var_2.txt;
+          jq -n "${sample_data}" | jq 'to_entries' >/tmp/expected_var_3.txt;
+          jq -n "${sample_data}" | jq '.' >/tmp/expected_var_4.txt;
+
+          (
+          cat << 'EOF' >/tmp/received_var_0.txt
+          ${{ steps.manual-vars-jq.outputs.var_0 }}
+          EOF
+          );
+          (
+          cat << 'EOF' >/tmp/received_var_1.txt
+          ${{ steps.manual-vars-jq.outputs.var_1 }}
+          EOF
+          );
+          (
+          cat << 'EOF' >/tmp/received_var_2.txt
+          ${{ steps.manual-vars-jq.outputs.var_2 }}
+          EOF
+          );
+          (
+          cat << 'EOF' >/tmp/received_var_3.txt
+          ${{ steps.manual-vars-jq.outputs.var_3 }}
+          EOF
+          );
+          (
+          cat << 'EOF' >/tmp/received_var_4.txt
+          ${{ steps.manual-vars-jq.outputs.var_4 }}
+          EOF
+          );
+
+          git diff --no-index /tmp/expected_var_0.txt /tmp/received_var_0.txt &&
+          git diff --no-index /tmp/expected_var_1.txt /tmp/received_var_1.txt &&
+          git diff --no-index /tmp/expected_var_2.txt /tmp/received_var_2.txt &&
+          git diff --no-index /tmp/expected_var_3.txt /tmp/received_var_3.txt &&
+          git diff --no-index /tmp/expected_var_4.txt /tmp/received_var_4.txt;

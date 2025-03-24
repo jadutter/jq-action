@@ -211,7 +211,7 @@ jobs:
       - name: Description
         run: >
           echo "Check our environment has everything we will need to check our action"
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Commit info
         run: >
           echo "hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT;
@@ -316,7 +316,7 @@ jobs:
       - name: Description
         run: >
           echo "Check our custom action behaves how we would expect"
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # attempt to use jq in a single line command via jq-action
       - name: Use jq
@@ -368,7 +368,8 @@ jobs:
           );
           (
           cat << 'EOF' >/tmp/received.txt
-          stdout:'${{ steps.test-use-jq-multiline.outputs.stdout }}'
+          stdout:'${{ steps.test-use-jq-multiline.outputs.stdout }}
+          '
           stderr:'${{ steps.test-use-jq-multiline.outputs.stderr }}'
           exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
           EOF

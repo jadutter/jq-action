@@ -331,7 +331,8 @@ jobs:
         run: |
           (
           cat << 'EOF' >/tmp/expected.txt
-          stdout:'["bar"]'
+          stdout:'["bar"]
+          '
           stderr:''
           exit_code:'0'
           EOF
@@ -361,8 +362,7 @@ jobs:
         run: |
           (
           cat << 'EOF' >/tmp/expected.txt
-          stdout:'true
-          '
+          stdout:'true'
           stderr:''
           exit_code:'0'
           EOF

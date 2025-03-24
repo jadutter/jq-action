@@ -361,15 +361,15 @@ jobs:
         run: |
           (
           cat << 'EOF' >/tmp/expected.txt
-          stdout:'true'
+          stdout:'true
+          '
           stderr:''
           exit_code:'0'
           EOF
           );
           (
           cat << 'EOF' >/tmp/received.txt
-          stdout:'${{ steps.test-use-jq-multiline.outputs.stdout }}
-          '
+          stdout:'${{ steps.test-use-jq-multiline.outputs.stdout }}'
           stderr:'${{ steps.test-use-jq-multiline.outputs.stderr }}'
           exit_code:'${{ steps.test-use-jq.outputs.exit_code }}'
           EOF

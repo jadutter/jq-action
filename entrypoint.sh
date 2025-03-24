@@ -10,11 +10,17 @@ cat /tmp/error >&2
 
 echo 'stdout<<EOF_STDOUT'>>$GITHUB_OUTPUT
 cat /tmp/output >>$GITHUB_OUTPUT
-printf '\nEOF_STDOUT\n' >>$GITHUB_OUTPUT
+if [[ ! "$(cat /tmp/output | tail -b 1)" == "$(printf '\n')" ]]; then 
+    printf '\n' >>$GITHUB_OUTPUT
+fi
+printf 'EOF_STDOUT\n' >>$GITHUB_OUTPUT
 
 echo 'stderr<<EOF_STDERR'>>$GITHUB_OUTPUT
 cat /tmp/error >>$GITHUB_OUTPUT
-printf '\nEOF_STDERR\n' >>$GITHUB_OUTPUT
+if [[ ! "$(cat /tmp/error | tail -b 1)" == "$(printf '\n')" ]]; then 
+    printf '\n' >>$GITHUB_OUTPUT
+fi
+printf 'EOF_STDERR\n' >>$GITHUB_OUTPUT
 
 echo "exit_code=$(cat /tmp/exit_code)" >> $GITHUB_OUTPUT
 exit "$(cat /tmp/exit_code)"

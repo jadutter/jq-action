@@ -1,6 +1,6 @@
 #!/bin/bash
 # print the output and errors, but also send them to files to be read later
-echo "1">/tmp/exit_code
+echo "0">/tmp/exit_code
 echo "${INPUT_CMD}" >/tmp/input
 
 ((eval "$(cat /tmp/input)" 1>/tmp/output 2>/tmp/error; echo "$?" > /tmp/exit_code) )
@@ -23,7 +23,7 @@ fi
 printf 'EOF_STDERR\n' >>$GITHUB_OUTPUT
 
 if [[ "$(cat /tmp/exit_code|tr -dc '[:digit:]')" -lt 1 ]]; then
-    echo "1">/tmp/exit_code
+    echo "0">/tmp/exit_code
 fi
 
 echo "exit_code=$(cat /tmp/exit_code)" >> $GITHUB_OUTPUT

@@ -1,6 +1,6 @@
 #!/bin/bash
 # print the output and errors, but also send them to files to be read later
-
+echo 1>/tmp/exit_code
 echo "${INPUT_CMD}" >/tmp/input
 
 ((eval "$(cat /tmp/input)" 1>/tmp/output 2>/tmp/error; echo "$?" > /tmp/exit_code) )
